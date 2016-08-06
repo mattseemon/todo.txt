@@ -37,4 +37,4 @@ Thanks to @benrhughes for the inspiration and most of the code that makes up thi
 [foundation18]: http://foundation18.org/
 [todotxt.net.license]: https://github.com/benrhughes/todotxt.net/blob/dev/BSD_LICENSE.txt
 [todo.txt.spec]: https://github.com/ginatrapani/todo.txt-cli/wiki/The-Todo.txt-Format
-[license]: MIT_License.txt
+[license]: MIT_LICENSE.txt
