@@ -12,6 +12,12 @@ If you have found the app useful, please make a donation towards any of the belo
  * [Foundation 18][foundation18] (Recommended. Supported by Ben Hughes)
  * [Save The Children][savethechildren]
 
+## Pending Work 
+
+ - [x] Do Initial Upload to Github
+ - [ ] Improve Error Handling & Logging
+ - [ ] Use Squirrel for Application Setup, Deployment and Updates
+
 ## License
 This application is covered under the MIT License listed [here][license].
 
