@@ -1,0 +1,29 @@
+﻿<Window x:Class="Seemon.Todo.Views.CreditView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:local="clr-namespace:Seemon.Todo.Views"
+        mc:Ignorable="d"
+        Title="CREDITS" SizeToContent="Height" Width="400" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock TextWrapping="Wrap" Margin="6">
+                TODO.TXT is made possible by todotxt.net and other open source projects<LineBreak /><LineBreak />
+                Thanks to Gina Trapani for defining the <Hyperlink NavigateUri="https://github.com/ginatrapani/todo.txt-cli/wiki/The-Todo.txt-Format" Click="OnClick">todo.txt specifications</Hyperlink>. For more information about <Hyperlink NavigateUri="http://www.todotxt.com" Click="OnClick">todo.txt.</Hyperlink><LineBreak/><LineBreak />
+                Thanks to Ben Hughes for the inspiration and most of the code that makes up this application. You can download the original application <Hyperlink NavigateUri="http://benrhughes.github.io/todotxt.net/" Click="OnClick">here</Hyperlink>. Additionally as this is a rework of Ben Hughes's orginal work, it is also covered under BSD License listed <Hyperlink NavigateUri="https://github.com/benrhughes/todotxt.net/blob/dev/BSD_LICENSE.txt" Click="OnClick">here</Hyperlink>.<LineBreak /><LineBreak/>
+                If you have found the app useful, please make a donation towards any of the charities listed <Hyperlink NavigateUri="https://github.com/mattseemon/todo.txt-WPF/tree/dev" Click="OnClick">here</Hyperlink>.
+            </TextBlock>
+        </StackPanel>
+        <Border Grid.Row="2" Background="{x:Static SystemColors.ControlBrush}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="0 1 0 0">
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Width="75" Content="Close" Margin="9" IsCancel="True" Height="23" IsDefault="True" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

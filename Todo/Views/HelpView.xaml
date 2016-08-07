@@ -1,0 +1,171 @@
+﻿<Window x:Class="Seemon.Todo.Views.HelpView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Seemon.Todo.Views"
+        mc:Ignorable="d"
+        Title="HelpView" MinHeight="480" MinWidth="640" ShowInTaskbar="False">
+    <Grid>
+        <FlowDocumentReader Margin="6">
+            <FlowDocument>
+                <Paragraph FontSize="18" FontWeight="Bold">Keyboard Shortcuts</Paragraph>
+                <List>
+                    <ListItem>
+                        <Paragraph>O or Ctrl+O: open todo.txt file</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>C or Ctrl+N: new todo.txt file</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>N: new task</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>J: next task</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>K: prev task</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>X: toggle task completion</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>A: archive tasks</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>D or Del or Backspace: delete task (with confirmation)</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>U or F2: update task</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>T: append text to selected tasks</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>P: Postpone task (enter days to postpone, or day of week to postpone to)</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>F: filter tasks (free-text, one filter condition per line)</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>I: set priority</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>0: clear filter</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>1-9: apply numbered filter preset</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>. or F5: reload tasks from file</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>? or F1: shows help</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Alt+Up: increase priority</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Alt+Down: decrease priority</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Alt+Left/Right: clear priority</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+Alt+Up: increase due date by 1 day</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+Alt+Down: decrease due date by 1 day</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+Alt+Left/Right: remove due date</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+C: copy task to clipboard</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+Shift+C: copy task to edit field</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Win+Alt+T: hide/unhide windows</Paragraph>
+                    </ListItem>
+                </List>
+                <Paragraph FontSize="18" FontWeight="Bold">
+                    Sorting shortcuts:
+                </Paragraph>
+                <List>
+                    <ListItem>
+                        <Paragraph>Ctrl+0: None</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+1: Alphabetical</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+2: Completed</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+3: Context</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+4: DueDate</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+5: Created</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+6: Priority</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>Ctrl+7: Project</Paragraph>
+                    </ListItem>
+                </List>
+                <Paragraph FontSize="18" FontWeight="Bold">
+                    Due date syntax:
+                </Paragraph>
+                <List>
+                    <ListItem>
+                        <Paragraph>due:2012-09-28</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>due:today</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>due:tomorrow</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>due:friday</Paragraph>
+                    </ListItem>
+                </List>
+                <Paragraph FontSize="18" FontWeight="Bold">
+                    Filtering:
+                </Paragraph>
+                <List>
+                    <ListItem>
+                        <Paragraph>one free-text filter per line</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>filters are AND'd together</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>to exclude a term, start the line with a '-', eg -@work</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>due date filtering: due:today, due:past, due:future or due:active (today and past)</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>precede due date filter with a '-' to produce the opposite due date filter</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>filter by completion: DONE, -DONE (case sensitive)</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>press Enter twice, or press Control+Enter, to save and close the filter</Paragraph>
+                    </ListItem>
+                    <ListItem>
+                        <Paragraph>set filter case sensistivity under File -> Options...</Paragraph>
+                    </ListItem>
+                </List>
+            </FlowDocument>
+        </FlowDocumentReader>
+    </Grid>
+</Window>

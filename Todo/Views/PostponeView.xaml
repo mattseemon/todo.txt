@@ -1,0 +1,27 @@
+﻿<Window x:Class="Seemon.Todo.Views.PostponeView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Seemon.Todo.Views"
+        mc:Ignorable="d"
+        Title="PostponeView" Width="300" SizeToContent="Height" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" WindowStyle="SingleBorderWindow" >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Label Content="Days to postpone:" Margin="10 10 0 20" VerticalAlignment="Center" Padding="5 0 0 0" />
+        <TextBox Grid.Column="1" Margin="6 10 10 20" Height="23" Text="{Binding Path=PostponeText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" x:Name="txtPostpone" />
+        <Border Grid.Row="1" Grid.ColumnSpan="2" Background="{x:Static SystemColors.ControlBrush}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="0 1 0 0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="OK" Width="75" Margin="0 9 0 9" Command="{Binding Path=OKCommand}" Height="23" IsDefault="True" />
+                <Button Content="Cancel" Width="75" Margin="6 9 9 9" Command="{Binding Path=CancelCommand}" Height="23" IsCancel="True"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

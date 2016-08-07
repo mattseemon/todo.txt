@@ -1,0 +1,79 @@
+﻿<Window x:Class="Seemon.Todo.Views.FilterView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cal="http://www.caliburnproject.org"
+        xmlns:local="clr-namespace:Seemon.Todo.Views"
+        xmlns:ctrl="clr-namespace:Seemon.Todo.Controls"
+        mc:Ignorable="d"
+        Title="FilterView" SizeToContent="Height" Width="500" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Width" Value="75"/>
+        </Style>
+        <Style TargetType="ctrl:IntellisenseTextBox">
+            <Setter Property="Height" Value="70"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="12" Grid.Row="0">
+            <TextBlock FontFamily="Segoe UI" FontSize="12pt" Foreground="#003399" Text="Define Filters" Margin="0 0 0 6"/>
+            <TextBlock FontFamily="Segoe UI" FontSize="9pt" Foreground="#000000" TextWrapping="Wrap">
+                    To invoke a filter from the main window, press a number key (<Bold>1</Bold>-<Bold>9</Bold>).<LineBreak/><Bold>0</Bold> will clear current active filter.
+            </TextBlock>
+        </StackPanel>
+        <Border Grid.Row="1" Margin="0" BorderThickness="0 1 0 0" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Background="{DynamicResource {x:Static SystemColors.InactiveBorderBrushKey}}">
+            <ScrollViewer Height="328">
+                <StackPanel Margin="12">
+                    <Label Content="Currently active filter:" Margin="0"/>
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Filter, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" x:Name="txtFilter" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #1:"/>
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset1, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #2:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset2, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #3:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset3, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #4:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset4, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #5:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset5, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #6:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset6, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #7:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset7, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #8:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset8, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                    <Label Content="Preset filter #9:" />
+                    <ctrl:IntellisenseTextBox CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" TaskList="{Binding Path=TaskManager}" Text="{Binding Path=Preset9, UpdateSourceTrigger=PropertyChanged}" cal:Message.Attach="[Event PreviewKeyUp] = [Action OnPreviewKeyUp($eventArgs)]" GotFocus="OnGotFocus" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        <Border Grid.Row="2" Background="{x:Static SystemColors.ControlBrush}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="0 1 0 0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Row="0" Grid.Column="0" Content="Clear Active" HorizontalAlignment="Left" Width="75" Height="23" Margin="9 9 6 9" Command="{Binding Path=ClearActiveCommand}" />
+                <Button Grid.Row="0" Grid.Column="1" Content="Clear All" HorizontalAlignment="Left" Width="75" Height="23" Margin="0 9 0 9" Command="{Binding Path=ClearAllCommand}" />
+                <Button Grid.Row="0" Grid.Column="3" Content="OK" HorizontalAlignment="Right" Width="75" Height="23" Margin="0 9 0 9" IsDefault="True" Command="{Binding Path=OKCommand}" />
+                <Button Grid.Row="0" Grid.Column="4" Content="Cancel" HorizontalAlignment="Right" Width="75" Height="23" Margin="6 9 9 9" IsCancel="True" Command="{Binding Path=CancelCommand}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
