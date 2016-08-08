@@ -15,8 +15,10 @@ If you have found the app useful, please make a donation towards any of the belo
 ## Pending Work 
 
  - [x] Do Initial Upload to Github
+ - [ ] Improve Help
  - [ ] Improve Error Handling & Logging
  - [ ] Use Squirrel for Application Setup, Deployment and Updates
+ - [ ] Support Globalization
 
 ## License
 This application is covered under the MIT License listed [here][license].
