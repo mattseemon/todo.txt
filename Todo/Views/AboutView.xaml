@@ -1,0 +1,57 @@
+﻿<Window x:Class="Seemon.Todo.Views.AboutView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Seemon.Todo.Views"
+        mc:Ignorable="d"
+        Title="ABOUT" SizeToContent="Height" Width="450" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Margin="20 6 20 6">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="0" Height="48" Margin="0 0 0 0" VerticalAlignment="Top" Text="{Binding Path=Title}" FontSize="32" />
+            <TextBlock Text="{Binding Path=FullVersion}" Grid.Row="1" Grid.Column="0" FontSize="16" Margin="0 0 0 15"/>
+            <TextBlock Text="{Binding Path=Description}" Grid.Row="2" Grid.Column="0" FontSize="16" Margin="0 0 0 15" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding Path=Copyright}" Grid.Row="3" Grid.Column="0" FontSize="16" Margin="0 0 0 15"/>
+            <TextBlock Text="{Binding Path=OriginalNotice}" Grid.Row="4" Grid.Column="0" Margin="0 0 0 10" TextWrapping="Wrap" />
+        </Grid>
+        <Border Grid.Row="1"  BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="0 1 0 0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Height="120">
+            <TextBlock TextAlignment="Justify" FontSize="12" TextWrapping="Wrap" Margin="9 6 9 9">
+                The MIT License (MIT)<LineBreak/><LineBreak/>
+                <Run Text="{Binding Path=Copyright, Mode=OneWay}" /><LineBreak/><LineBreak/>
+                    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:<LineBreak /><LineBreak />
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.<LineBreak/><LineBreak/>
+                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+            </TextBlock>
+            </ScrollViewer>
+        </Border>
+        <Border Grid.Row="2" Background="{x:Static SystemColors.ControlBrush}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" BorderThickness="0 1 0 0">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <Button Width="75" Content="Credits" Margin="9" Height="23" Command="{Binding Path=ShowCreditsCommand}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Width="75" Content="Close" Margin="9" IsCancel="True" Height="23" IsDefault="True" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
