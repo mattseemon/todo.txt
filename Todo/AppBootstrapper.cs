@@ -16,6 +16,7 @@ using System.Windows.Threading;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Squirrel;
 
 namespace Seemon.Todo
 {
@@ -35,6 +36,18 @@ namespace Seemon.Todo
 
         public AppBootstrapper()
         {
+            using (var updateManager = new UpdateManager(AppInfo.UpdateLocation, "todo.txt"))
+            {
+                SquirrelAwareApp.HandleEvents(
+                    onInitialInstall: v => updateManager.CreateShortcutForThisExe(),
+                    onAppUpdate: v =>
+                    {
+                        updateManager.CreateShortcutForThisExe();
+                        updateManager.CreateShortcutsForExecutable("todo.exe", ShortcutLocation.AppRoot, false);
+                    },
+                    onAppUninstall: v => updateManager.RemoveShortcutForThisExe());
+            }
+
             Initialize();
         }
 
