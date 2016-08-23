@@ -48,6 +48,7 @@ namespace Seemon.Todo.ViewModels
         public OptionsViewModel OptionsViewModel { get; private set; }
         public AboutViewModel AboutViewModel { get; private set; }
         public HelpViewModel HelpViewModel { get; private set; }
+        public UpdateViewModel UpdateViewModel { get; private set; }
 
         public ReactiveCommand<object> FileNewCommand { get; private set; }
         public ReactiveCommand<object> ToolsOptionsCommand { get; private set; }
@@ -122,8 +123,6 @@ namespace Seemon.Todo.ViewModels
             set { this.RaiseAndSetIfChanged(ref this.showPrintPreview, value); }
         }
 
-        
-
         public ShellViewModel()
         {
             this.Log().Info("Initializing todo.txt window");
@@ -135,6 +134,7 @@ namespace Seemon.Todo.ViewModels
             this.OptionsViewModel = new OptionsViewModel();
             this.AboutViewModel = new AboutViewModel();
             this.HelpViewModel = new HelpViewModel();
+            this.UpdateViewModel = Locator.Current.GetService<UpdateViewModel>();
 
             this.FileNewCommand = ReactiveCommand.Create();
             this.FileNewCommand.Subscribe(x => this.OnFileNew());

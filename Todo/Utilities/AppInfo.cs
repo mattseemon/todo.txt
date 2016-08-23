@@ -28,7 +28,11 @@ namespace Seemon.Todo.Utilities
             ApplicationRootPath = Path.GetDirectoryName(currentAssembly.Location);
             LogFilePath = Path.Combine(ApplicationRootPath, "Log.txt");
 
-#if PORTABLE
+#if DEBUG
+            UpdateLocation = @"D:\Development\GitHub\todo.txt-WPF\Releases\";
+#endif
+
+#if (DEBUG || PORTABLE)
             PortableStoragePath = Path.Combine(ApplicationRootPath, "blobs.db");
 #endif
 

@@ -1,5 +1,7 @@
 ﻿using Akavache;
 using Lager;
+using System;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Seemon.Todo.Utilities
@@ -221,6 +223,30 @@ namespace Seemon.Todo.Utilities
         public string FilterPreset9
         {
             get { return this.GetOrCreate(string.Empty); }
+            set { this.SetOrCreate(value); }
+        }
+
+        public bool CheckForUpdates
+        {
+            get { return this.GetOrCreate(true); }
+            set { this.SetOrCreate(value); }
+        }
+
+        public bool ConfirmBeforeUpdate
+        {
+            get { return this.GetOrCreate(false); }
+            set { this.SetOrCreate(value); }
+        }
+
+        public DateTime? LastUpdateCheck
+        {
+            get { return this.GetOrCreate(new Nullable<DateTime>()); }
+            set { this.SetOrCreate(value); }
+        }
+
+        public Rect WindowLocation
+        {
+            get { return this.GetOrCreate(Rect.Empty); }
             set { this.SetOrCreate(value); }
         }
     }

@@ -23,31 +23,39 @@ namespace Seemon.Todo
     public class AppBootstrapper : BootstrapperBase, IEnableLogger
     {
         private UserSettings settings = null;
+        private AppUpdater updater = null;
+        private IUpdateManager updateManager = null;
+        public bool ShowWelcomeWindow;
+
         private TaskbarIcon notifyIcon = null;
 
         public static IBlobCache OldBlobCache = null;
+        
 
         public ReactiveCommand<object> EnableDebugLoggingCommand { get; private set; }
 
         static AppBootstrapper()
         {
-            BlobCache.ApplicationName = "todo.txt";
+            BlobCache.ApplicationName = "todotxt";
         }
 
         public AppBootstrapper()
         {
-            using (var updateManager = new UpdateManager(AppInfo.UpdateLocation, "todo.txt"))
-            {
-                SquirrelAwareApp.HandleEvents(
-                    onInitialInstall: v => updateManager.CreateShortcutForThisExe(),
-                    onAppUpdate: v =>
-                    {
-                        updateManager.CreateShortcutForThisExe();
-                        updateManager.CreateShortcutsForExecutable("todo.exe", ShortcutLocation.AppRoot, false);
-                    },
-                    onAppUninstall: v => updateManager.RemoveShortcutForThisExe());
-            }
+            updateManager = new UpdateManager(AppInfo.UpdateLocation, "todotxt");
 
+            SquirrelAwareApp.HandleEvents(
+                onInitialInstall: v => 
+                {
+                    this.Log().Info("TODO.TXT - On Initial Install Run");
+                    updateManager.CreateShortcutForThisExe();
+                },
+                onAppUpdate: v =>
+                {
+                    updateManager.CreateShortcutForThisExe();
+                },
+                onAppUninstall: v => updateManager.RemoveShortcutForThisExe(),
+                onFirstRun: () => ShowWelcomeWindow = true);
+            
             Initialize();
         }
 
@@ -83,15 +91,19 @@ namespace Seemon.Todo
 #endif
 
             this.settings = new UserSettings(BlobCache.UserAccount);
+            Locator.CurrentMutable.RegisterConstant(this.settings, typeof(UserSettings));
+            Locator.CurrentMutable.RegisterLazySingleton(() => new WindowManager(), typeof(IWindowManager));
+
+            this.updater = new AppUpdater(this.updateManager);
 
             this.EnableDebugLoggingCommand = ReactiveCommand.Create();
             this.EnableDebugLoggingCommand.Subscribe(x => this.EnableDebugLogging());
 
             this.settings.WhenAnyValue(x => x.EnableDebugLogging).InvokeCommand(this, x => x.EnableDebugLoggingCommand);
 
-            Locator.CurrentMutable.RegisterConstant(this.settings, typeof(UserSettings));
-            Locator.CurrentMutable.RegisterLazySingleton(() => new WindowManager(), typeof(IWindowManager));
+            
             Locator.CurrentMutable.RegisterLazySingleton(() => new ShellViewModel(), typeof(ShellViewModel));
+            Locator.CurrentMutable.Register(() => this.updater, typeof(AppUpdater));
 
             this.notifyIcon = (TaskbarIcon)App.Current.FindResource("NotifyIcon");
             Locator.CurrentMutable.Register(() => this.notifyIcon, typeof(TaskbarIcon));

@@ -15,14 +15,13 @@ using System.Windows.Shapes;
 namespace Seemon.Todo.Views
 {
     /// <summary>
-    /// Interaction logic for OptionsView.xaml
+    /// Interaction logic for UpdateView.xaml
     /// </summary>
-    public partial class OptionsView : Window
+    public partial class UpdateView : Window
     {
-        public OptionsView()
+        public UpdateView()
         {
             InitializeComponent();
         }
-
     }
 }

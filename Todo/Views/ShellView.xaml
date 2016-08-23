@@ -13,7 +13,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         
         mc:Ignorable="d"
-        Title="TODO.TXT" Height="480" Width="640" ResizeMode="CanResizeWithGrip" MinHeight="480" MinWidth="640" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded">
+        Title="TODO.TXT" Height="480" Width="640" ResizeMode="CanResizeWithGrip" MinHeight="480" MinWidth="640" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded" SizeChanged="OnWindowSizeChanged" LocationChanged="OnWindowLocationChanged">
     <Window.Resources>
         <local:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
         <local:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />

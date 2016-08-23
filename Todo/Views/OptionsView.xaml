@@ -7,10 +7,12 @@
         xmlns:rare="clr-namespace:Rareform.ValueConverters;assembly=Rareform"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:xcd="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:conv="clr-namespace:Seemon.Todo.Converters"
         mc:Ignorable="d"
         Title="OPTIONS" Width="450" Height="320" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Window.Resources>
         <rare:BoolNegationValueConverter x:Key="BoolNegationConverter" />
+        <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <CollectionViewSource Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}" x:Key="familyCollection" />
     </Window.Resources>
     <Grid>
@@ -57,8 +59,8 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <Label Content="Archive File:" Grid.Row="0" Grid.ColumnSpan="2" Margin="0 0 3 0" Padding="0" />
-                        <TextBox Grid.Row="1" Grid.Column="0" Margin="0 0 3 0" Text="{Binding Path=ArchiveFilePath}" IsEnabled="{Binding Path=AutomaticallySelectArchivePath, Converter={StaticResource BoolNegationConverter}}" Height="22" VerticalContentAlignment="Center" />
+                        <Label Content="Archive File:" Grid.Row="0" Grid.ColumnSpan="2" Margin="2 0 3 0" Padding="0" />
+                        <TextBox Grid.Row="1" Grid.Column="0" Margin="1 0 3 0" Text="{Binding Path=ArchiveFilePath}" IsEnabled="{Binding Path=AutomaticallySelectArchivePath, Converter={StaticResource BoolNegationConverter}}" Height="22" VerticalContentAlignment="Center" />
                         <Button Grid.Row="1" Grid.Column="1" Content="Select..." Margin="0 0 0 0" Width="75" IsEnabled="{Binding Path=AutomaticallySelectArchivePath, Converter={StaticResource BoolNegationConverter}}" Command="{Binding Path=BrowseArchiveCommand}" />
                     </Grid>
                     <CheckBox Content="Automatically archive completed tasks"  Margin="3 0 3 3" IsChecked="{Binding Path=AutomaticallyArchiveCompletedTasks}"/>
@@ -110,6 +112,16 @@
                             </Border>
                         </Grid>
                     </Grid>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Updates">
+                <StackPanel>
+                    <CheckBox Content="Automatically install updates (recommended)" Margin="3 3 3 3"  IsChecked="{Binding Path=CheckForUpdates}"/>
+                    <CheckBox Content="Ask before downloading and installing updates" Margin="3 0 3 3" IsChecked="{Binding Path=ConfirmBeforeUpdate}" />
+                    <Button Height="23" Width="120" Content="Check Now" Margin="4 9 3 3" HorizontalAlignment="Left" Command="{Binding Path=UpdateNowCommand}" />
+                    <TextBlock Margin="4 0 3 3" Text="Application will check for updates automatically every 8 hours." />
+
+                    <TextBlock Margin="3 9 3 0"  Text="{Binding Path=LastUpdateLabel}" />
                 </StackPanel>
             </TabItem>
         </TabControl>

@@ -46,6 +46,9 @@ namespace Seemon.Todo.ViewModels
         public readonly ObservableAsPropertyHelper<int> fontSize;
         public readonly ObservableAsPropertyHelper<FontFamily> fontFamily;
         public readonly ObservableAsPropertyHelper<FamilyTypeface> fontStyle;
+        public readonly ObservableAsPropertyHelper<bool> checkForUpdates;
+        public readonly ObservableAsPropertyHelper<bool> confirmBeforeUpdate;
+        public readonly ObservableAsPropertyHelper<DateTime?> lastUpdateCheck;
 
         public bool StartOnWindowsStartup
         {
@@ -54,7 +57,6 @@ namespace Seemon.Todo.ViewModels
             {
                 this.settings.StartOnWindowsStartup = value;
                 StartUpManager.CreateCurrentUserShortcut(value);
-                //StartUpManager.ElevateApplication(value);
             }
         }
 
@@ -153,7 +155,7 @@ namespace Seemon.Todo.ViewModels
             get { return this.applyWordWarpToTaskList.Value; }
             set { this.settings.ApplyWordWarpToTaskList = value; }
         }
-        
+
         public bool FilterTextIsCaseSensitive
         {
             get { return this.filterTextIsCaseSensitive.Value; }
@@ -189,9 +191,38 @@ namespace Seemon.Todo.ViewModels
             get { return this.fontStyle.Value; }
             set { this.settings.FontStyle = value; }
         }
+        public bool CheckForUpdates
+        {
+            get { return this.checkForUpdates.Value; }
+            set { this.settings.CheckForUpdates = value; }
+        }
+
+        public bool ConfirmBeforeUpdate
+        {
+            get { return this.confirmBeforeUpdate.Value; }
+            set { this.settings.ConfirmBeforeUpdate = value; }
+        }
+
+        public DateTime? LastUpdateCheck
+        {
+            get { return this.lastUpdateCheck.Value; }
+            set { this.settings.LastUpdateCheck = value; }
+        }
+
+        public string LastUpdateLabel
+        {
+            get
+            {
+                if (this.LastUpdateCheck.HasValue)
+                    return string.Format("Last Update: {0:MM-dd-yyyy hh:mm:ss", this.LastUpdateCheck.Value);
+
+                return "Last Update: Never";
+            }
+        }
 
         public ReactiveCommand<object> BrowseArchiveCommand { get; private set; }
         public ReactiveCommand<object> ResetToDefaultsCommand { get; private set; }
+        public ReactiveCommand<object> UpdateNowCommand { get; private set; }
 
         public OptionsViewModel()
         {
@@ -223,15 +254,26 @@ namespace Seemon.Todo.ViewModels
             this.fontSize = this.settings.WhenAnyValue(x => x.FontSize).ToProperty(this, x => x.FontSize);
             this.fontFamily = this.settings.WhenAnyValue(x => x.FontFamily).ToProperty(this, x => x.FontFamily);
             this.fontStyle = this.settings.WhenAnyValue(x => x.FontStyle).ToProperty(this, x => x.FontStyle);
+            this.checkForUpdates = this.settings.WhenAnyValue(x => x.CheckForUpdates).ToProperty(this, x => x.CheckForUpdates);
+            this.confirmBeforeUpdate = this.settings.WhenAnyValue(x => x.ConfirmBeforeUpdate).ToProperty(this, x => x.ConfirmBeforeUpdate);
+            this.lastUpdateCheck = this.settings.WhenAnyValue(x => x.LastUpdateCheck).ToProperty(this, x => x.LastUpdateCheck);
 
             this.BrowseArchiveCommand = ReactiveCommand.Create();
             this.BrowseArchiveCommand.Subscribe(x => this.DoBrowseArchive());
 
             this.ResetToDefaultsCommand = ReactiveCommand.Create();
-            this.ResetToDefaultsCommand.Subscribe(x => this.ResetToDefaults());
+            this.ResetToDefaultsCommand.Subscribe(x => this.DoResetToDefaults());
+
+            this.UpdateNowCommand = ReactiveCommand.Create();
+            this.UpdateNowCommand.Subscribe(x => this.DoUpdateNow());
         }
 
-        private void ResetToDefaults()
+        private object DoUpdateNow()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void DoResetToDefaults()
         {
             var td = new TaskDialog();
             td.Caption = "TODO.TXT - RESET TO DEFAULTS";
