@@ -86,6 +86,7 @@ namespace Seemon.Todo.ViewModels
         public ReactiveCommand<object> PrintPreviewCancelCommand { get; private set; }
         public ReactiveCommand<object> ToolsSwitchModeCommand { get; private set; }
         public ReactiveCommand<object> HelpViewErrorLogCommand { get; private set; }
+        public ReactiveCommand<object> HelpCheckForUpdatesCommand { get; private set; }
 
         public TaskList TaskManager { get; set; }
 
@@ -222,7 +223,10 @@ namespace Seemon.Todo.ViewModels
 
             this.HelpViewErrorLogCommand = ReactiveCommand.Create();
             this.HelpViewErrorLogCommand.Subscribe(x => this.OnFeatureNotImplemented("View error log."));
-            
+
+            this.HelpCheckForUpdatesCommand = ReactiveCommand.Create();
+            this.HelpCheckForUpdatesCommand.Subscribe(x => this.OnCheckForUpdates());
+
             this.HelpViewHelpCommand = ReactiveCommand.Create();
             this.HelpViewHelpCommand.Subscribe(x => this.HelpViewModel.Show());
 
@@ -536,6 +540,13 @@ namespace Seemon.Todo.ViewModels
         {
             var preset = x != null ? int.Parse(x.ToString()) : -1;
             ApplyFilterPreset(preset);
+        }
+
+        private async void OnCheckForUpdates()
+        {
+            this.Log().Info("Starting manual application update check.");
+            await Locator.Current.GetService<AppUpdater>().UpdateAppAsync(true);
+            this.Log().Info("Completed manual application update check.");
         }
 
         private void UpdateWindowTitle()

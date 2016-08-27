@@ -18,6 +18,7 @@ namespace Seemon.Todo.ViewModels
                 
         public UpdateViewModel(AppUpdater updater)
         {
+            this.DisplayName = "Update TODO.TXT";
             this.updater = updater;
             this.CloseCommand = ReactiveCommand.Create();
             this.CloseCommand.Subscribe(x => this.TryClose(true));

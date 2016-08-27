@@ -206,18 +206,18 @@ namespace Seemon.Todo.ViewModels
         public DateTime? LastUpdateCheck
         {
             get { return this.lastUpdateCheck.Value; }
-            set { this.settings.LastUpdateCheck = value; }
+            set
+            {
+                this.settings.LastUpdateCheck = value;
+                this.LastUpdateLabel = value.HasValue ? string.Format("Last Update: {0:MM-dd-yyyy hh:mm tt}", this.LastUpdateCheck.Value) : "Last Update: Never";
+            }
         }
 
+        string lastUpdateLabel = string.Empty;
         public string LastUpdateLabel
         {
-            get
-            {
-                if (this.LastUpdateCheck.HasValue)
-                    return string.Format("Last Update: {0:MM-dd-yyyy hh:mm:ss", this.LastUpdateCheck.Value);
-
-                return "Last Update: Never";
-            }
+            get { return lastUpdateLabel; }
+            set { this.RaiseAndSetIfChanged(ref this.lastUpdateLabel, value); }
         }
 
         public ReactiveCommand<object> BrowseArchiveCommand { get; private set; }
@@ -257,6 +257,7 @@ namespace Seemon.Todo.ViewModels
             this.checkForUpdates = this.settings.WhenAnyValue(x => x.CheckForUpdates).ToProperty(this, x => x.CheckForUpdates);
             this.confirmBeforeUpdate = this.settings.WhenAnyValue(x => x.ConfirmBeforeUpdate).ToProperty(this, x => x.ConfirmBeforeUpdate);
             this.lastUpdateCheck = this.settings.WhenAnyValue(x => x.LastUpdateCheck).ToProperty(this, x => x.LastUpdateCheck);
+            this.LastUpdateLabel = this.LastUpdateCheck.HasValue ? string.Format("Last Update: {0:MM-dd-yyyy hh:mm tt}", this.LastUpdateCheck.Value) : "Last Update: Never";
 
             this.BrowseArchiveCommand = ReactiveCommand.Create();
             this.BrowseArchiveCommand.Subscribe(x => this.DoBrowseArchive());
@@ -268,9 +269,11 @@ namespace Seemon.Todo.ViewModels
             this.UpdateNowCommand.Subscribe(x => this.DoUpdateNow());
         }
 
-        private object DoUpdateNow()
+        private async void DoUpdateNow()
         {
-            throw new NotImplementedException();
+            this.Log().Info("Starting manual application update check.");
+            await Locator.Current.GetService<AppUpdater>().UpdateAppAsync(true);
+            this.Log().Info("Completed manual application update check.");
         }
 
         private void DoResetToDefaults()

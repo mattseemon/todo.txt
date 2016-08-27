@@ -104,6 +104,7 @@ namespace Seemon.Todo
             
             Locator.CurrentMutable.RegisterLazySingleton(() => new ShellViewModel(), typeof(ShellViewModel));
             Locator.CurrentMutable.Register(() => this.updater, typeof(AppUpdater));
+            Locator.CurrentMutable.Register(() => this.updateManager, typeof(IUpdateManager));
 
             this.notifyIcon = (TaskbarIcon)App.Current.FindResource("NotifyIcon");
             Locator.CurrentMutable.Register(() => this.notifyIcon, typeof(TaskbarIcon));

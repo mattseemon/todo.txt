@@ -21,6 +21,8 @@ namespace Seemon.Todo.Utilities
 
         public AppUpdater(IUpdateManager updateManager)
         {
+            this.Log().Info("Initialize Application Updater.");
+
             this.updateManager = updateManager;
             this.windowManager = Locator.Current.GetService<IWindowManager>();
             this.settings = Locator.Current.GetService<UserSettings>();
@@ -31,6 +33,8 @@ namespace Seemon.Todo.Utilities
                 Observable.Interval(TimeSpan.FromHours(8), RxApp.TaskpoolScheduler)
                     .StartWith(0)
                     .InvokeCommand(this.UpdateAppCommand);
+
+            this.Log().Info("Application Updater Initialized.");
         }
 
         public NuGet.SemanticVersion CurrentVersion
@@ -57,6 +61,7 @@ namespace Seemon.Todo.Utilities
 
         public async Task<bool> CheckUpdateAsync()
         {
+            this.Log().Info("Start Application Update Check.");
             bool hasUpdate = false;
             try
             {
@@ -65,6 +70,11 @@ namespace Seemon.Todo.Utilities
                 this.updateVersion = info.FutureReleaseEntry.Version;
 
                 hasUpdate = !this.CurrentVersion.Equals(info.FutureReleaseEntry.Version);
+
+                if (hasUpdate)
+                    this.Log().Info("New application update found. New Version: {0}", info.FutureReleaseEntry.Version.ToString());
+                else
+                    this.Log().Info("No application updates found.");
             }
             catch (System.Net.WebException ex)
             {
@@ -76,11 +86,14 @@ namespace Seemon.Todo.Utilities
                 this.Log().Error(string.Format("HasNewUpdate failed with the unexpected exception {0}", ex.Message));
                 hasUpdate = false;
             }
+            this.Log().Info("Application update check completed.");
             return hasUpdate;
         }
 
-        private async Task<bool> UpdateAppAsync(bool showUI)
+        public async Task<bool> UpdateAppAsync(bool showUI)
         {
+            this.Log().Info("Start Application Update.");
+            UpdateViewModel updateViewModel = null;
             bool autoUpdate = true;
             bool hasUpdate = await this.CheckUpdateAsync();
             settings.LastUpdateCheck = DateTime.Now;
@@ -92,6 +105,7 @@ namespace Seemon.Todo.Utilities
             {
                 if(showUI)
                 {
+                    this.Log().Info("Display update UI.");
                     TaskDialog td = new TaskDialog();
 
                     td.InstructionText = "Application Update Available";
@@ -103,7 +117,7 @@ namespace Seemon.Todo.Utilities
                     TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
                     btnUpdateNow.Click += (o, e) =>
                     {
-                        UpdateViewModel updateViewModel = new UpdateViewModel(this);
+                        updateViewModel = new UpdateViewModel(this);
                         progress = updateViewModel.UpdateProgress;
                         windowManager.ShowWindow(updateViewModel);
                         td.Close(TaskDialogResult.Ok);
@@ -117,13 +131,23 @@ namespace Seemon.Todo.Utilities
 
                 if(autoUpdate)
                 {
+                    this.Log().Info("Application update started.");
                     try
                     {
                         if (await this.CheckUpdateAsync())
                         {
+                            this.Log().Info("Updating application to newer version.");
                             ReleaseEntry info = await updateManager.UpdateApp(progress);
+                            this.Log().Info("Completed download and updating");
                             hasUpdated = true;
 
+                            if (updateViewModel != null)
+                            {
+                                updateViewModel.TryClose(true);
+                                this.Log().Info("Closed update UI.");
+                            }
+
+                            this.Log().Info("Restarting application after update.");
                             //TODO: Add check to see if restart after install is required.
                             RestartApplication();
                         }
