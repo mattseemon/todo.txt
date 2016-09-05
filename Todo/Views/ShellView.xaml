@@ -319,8 +319,14 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem>
+            <StatusBarItem Visibility="{Binding Path=ShowUpdating, Converter={StaticResource BooleanToCollapsed}}" Grid.Column="0">
                 <TextBlock Text="{Binding StatusInformation}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Calendar" util:ToolTipExtended.ToolTipContent="Shows the dates and days for the next 7 days." />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="0" Visibility="{Binding Path=ShowUpdating, Converter={StaticResource BooleanToVisibile}}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock Text="A new version of TODO.TXT is being installed." Margin="5 0" />
+                    <ProgressBar Value="{Binding Path=UpdateProgressValue}" Width="150" Margin="0 0 5 0" />
+                </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
                 <TextBlock Text="PORTABLE" FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Portable Mode" util:ToolTipExtended.ToolTipContent="Application is currently in portable mode."  />

@@ -23,7 +23,6 @@ namespace Seemon.Todo
     public class AppBootstrapper : BootstrapperBase, IEnableLogger
     {
         private UserSettings settings = null;
-        private AppUpdater updater = null;
         private IUpdateManager updateManager = null;
         public bool ShowWelcomeWindow;
 
@@ -94,8 +93,6 @@ namespace Seemon.Todo
             Locator.CurrentMutable.RegisterConstant(this.settings, typeof(UserSettings));
             Locator.CurrentMutable.RegisterLazySingleton(() => new WindowManager(), typeof(IWindowManager));
 
-            this.updater = new AppUpdater(this.updateManager);
-
             this.EnableDebugLoggingCommand = ReactiveCommand.Create();
             this.EnableDebugLoggingCommand.Subscribe(x => this.EnableDebugLogging());
 
@@ -103,7 +100,6 @@ namespace Seemon.Todo
 
             
             Locator.CurrentMutable.RegisterLazySingleton(() => new ShellViewModel(), typeof(ShellViewModel));
-            Locator.CurrentMutable.Register(() => this.updater, typeof(AppUpdater));
             Locator.CurrentMutable.Register(() => this.updateManager, typeof(IUpdateManager));
 
             this.notifyIcon = (TaskbarIcon)App.Current.FindResource("NotifyIcon");
@@ -137,6 +133,9 @@ namespace Seemon.Todo
         protected override void OnExit(object sender, EventArgs e)
         {
             this.Log().Info("Starting todo.txt shutdown");
+
+            if (updateManager != null)
+                this.updateManager.Dispose();
 
             this.Log().Info("Shutting down BlobCache");
             BlobCache.Shutdown().Wait();

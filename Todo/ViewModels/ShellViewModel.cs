@@ -9,6 +9,7 @@ using Seemon.Todo.Models;
 using Seemon.Todo.Utilities;
 using Seemon.Todo.Views;
 using Splat;
+using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -40,15 +41,19 @@ namespace Seemon.Todo.ViewModels
         private string statusInformation = string.Empty;
         private bool showCalendar = false;
         private bool showPrintPreview = false;
+        private bool showUpdating = false;
+        private AppUpdater appUpdater = null;
+
+        private int updateProgress = 0;
 
         public readonly ObservableAsPropertyHelper<SortType> sortType;
         public readonly ObservableAsPropertyHelper<string> currentFilter;
+        public ObservableAsPropertyHelper<bool> applicationUpdating;
 
         public UserSettings UserSettings { get; private set; }
         public OptionsViewModel OptionsViewModel { get; private set; }
         public AboutViewModel AboutViewModel { get; private set; }
         public HelpViewModel HelpViewModel { get; private set; }
-        public UpdateViewModel UpdateViewModel { get; private set; }
 
         public ReactiveCommand<object> FileNewCommand { get; private set; }
         public ReactiveCommand<object> ToolsOptionsCommand { get; private set; }
@@ -124,6 +129,32 @@ namespace Seemon.Todo.ViewModels
             set { this.RaiseAndSetIfChanged(ref this.showPrintPreview, value); }
         }
 
+        public bool ShowUpdating
+        {
+            get { return this.showUpdating; }
+            set { this.RaiseAndSetIfChanged(ref this.showUpdating, value); }
+        }
+
+        public int UpdateProgress
+        {
+            get { return this.updateProgress; }
+            set { this.RaiseAndSetIfChanged(ref this.updateProgress, value); }
+        }
+
+        public bool Updating
+        {
+            get { return this.applicationUpdating.Value; }
+            set
+            {
+                if (this.UserSettings.ConfirmBeforeUpdate && value)
+                {
+                    this.ShowUpdating = true;
+                }
+                else
+                    this.ShowUpdating = false;
+            }
+        }
+
         public ShellViewModel()
         {
             this.Log().Info("Initializing todo.txt window");
@@ -135,8 +166,7 @@ namespace Seemon.Todo.ViewModels
             this.OptionsViewModel = new OptionsViewModel();
             this.AboutViewModel = new AboutViewModel();
             this.HelpViewModel = new HelpViewModel();
-            this.UpdateViewModel = Locator.Current.GetService<UpdateViewModel>();
-
+            
             this.FileNewCommand = ReactiveCommand.Create();
             this.FileNewCommand.Subscribe(x => this.OnFileNew());
 
@@ -265,6 +295,14 @@ namespace Seemon.Todo.ViewModels
                 LoadTasks(this.UserSettings.LastLoadedFilePath);
             else
                 this.UserSettings.LastLoadedFilePath = string.Empty;
+
+            this.appUpdater = new AppUpdater(Locator.Current.GetService<IUpdateManager>(),
+                (x) => 
+                {
+                    this.UpdateProgress = x;
+                }, this.OnAppUpdatePreUpdate);
+
+            this.applicationUpdating = this.appUpdater.WhenAnyValue(x => x.Updating).ToProperty(this, x => x.Updating);
         }
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -272,6 +310,30 @@ namespace Seemon.Todo.ViewModels
             this.HelpViewModel.TryClose();
             this.AboutViewModel.TryClose();
             this.OptionsViewModel.TryClose();
+        }
+
+        public async System.Threading.Tasks.Task<bool> OnAppUpdatePreUpdate(string oldVersion, string newVersion)
+        {
+            TaskDialog td = new TaskDialog();
+
+            td.InstructionText = "Application Update Available";
+            td.Caption = "TODO.TXT - UPDATE";
+            td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", oldVersion, newVersion);
+            td.Icon = TaskDialogStandardIcon.Information;
+            td.StandardButtons = TaskDialogStandardButtons.Cancel;
+
+            TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
+            btnUpdateNow.Click += (o, e) =>
+            {
+                td.Close(TaskDialogResult.Ok);
+            };
+
+            td.Controls.Add(btnUpdateNow);
+
+            if (td.Show() == TaskDialogResult.Ok)
+                return true;
+
+            return false;
         }
 
         public void OnTaskTextKeyUp(object sender, KeyEventArgs e)
@@ -637,6 +699,7 @@ namespace Seemon.Todo.ViewModels
             UpdateDisplayedTasks();
             SetSelectedTasks();
         }
+
 
 
         private void ShowHideCalendar()

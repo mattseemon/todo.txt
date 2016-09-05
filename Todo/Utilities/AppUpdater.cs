@@ -10,8 +10,10 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace Seemon.Todo.Utilities
 {
-    public class AppUpdater : IEnableLogger, IDisposable
+    public class AppUpdater : ReactiveObject, IEnableLogger, IDisposable
     {
+        private Action<int> ProgressChanged;
+        private Func<string, string, Task<bool>> PreUpdate;
 
         private readonly IUpdateManager updateManager;
         NuGet.SemanticVersion currentVersion;
@@ -19,13 +21,23 @@ namespace Seemon.Todo.Utilities
         private UserSettings settings;
         private IWindowManager windowManager;
 
-        public AppUpdater(IUpdateManager updateManager)
+        private bool updating = false;
+
+        public bool Updating
+        {
+            get { return this.updating; }
+            set { this.RaiseAndSetIfChanged(ref this.updating, value); }
+        }
+
+        public AppUpdater(IUpdateManager updateManager, Action<int> progress = null, Func<string, string, Task<bool>> preUpdate = null)
         {
             this.Log().Info("Initialize Application Updater.");
 
             this.updateManager = updateManager;
             this.windowManager = Locator.Current.GetService<IWindowManager>();
             this.settings = Locator.Current.GetService<UserSettings>();
+            this.ProgressChanged = progress;
+            this.PreUpdate = preUpdate;
 
             this.UpdateAppCommand = ReactiveCommand.CreateAsyncTask(_ => this.UpdateAppAsync(this.settings.ConfirmBeforeUpdate));
 
@@ -93,43 +105,20 @@ namespace Seemon.Todo.Utilities
         public async Task<bool> UpdateAppAsync(bool showUI)
         {
             this.Log().Info("Start Application Update.");
-            UpdateViewModel updateViewModel = null;
-            bool autoUpdate = true;
             bool hasUpdate = await this.CheckUpdateAsync();
+            this.updating = true;
             settings.LastUpdateCheck = DateTime.Now;
             bool hasUpdated = false;
-
-            Action<int> progress = null;
 
             if(hasUpdate)
             {
                 if(showUI)
                 {
                     this.Log().Info("Display update UI.");
-                    TaskDialog td = new TaskDialog();
-
-                    td.InstructionText = "Application Update Available";
-                    td.Caption = "TODO.TXT - UPDATE";
-                    td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", this.currentVersion.ToString(), this.UpdateVersion.ToString());
-                    td.Icon = TaskDialogStandardIcon.Information;
-                    td.StandardButtons = TaskDialogStandardButtons.Cancel;
-
-                    TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
-                    btnUpdateNow.Click += (o, e) =>
-                    {
-                        updateViewModel = new UpdateViewModel(this);
-                        progress = updateViewModel.UpdateProgress;
-                        windowManager.ShowWindow(updateViewModel);
-                        td.Close(TaskDialogResult.Ok);
-                    };
-
-                    td.Controls.Add(btnUpdateNow);
-
-                    if (td.Show() != TaskDialogResult.Ok)
-                        autoUpdate = false;
+                    updating = await PreUpdate(this.currentVersion.ToString(), this.UpdateVersion.ToString());
                 }
 
-                if(autoUpdate)
+                if(updating)
                 {
                     this.Log().Info("Application update started.");
                     try
@@ -137,19 +126,9 @@ namespace Seemon.Todo.Utilities
                         if (await this.CheckUpdateAsync())
                         {
                             this.Log().Info("Updating application to newer version.");
-                            ReleaseEntry info = await updateManager.UpdateApp(progress);
+                            ReleaseEntry info = await updateManager.UpdateApp(this.ProgressChanged);
                             this.Log().Info("Completed download and updating");
                             hasUpdated = true;
-
-                            if (updateViewModel != null)
-                            {
-                                updateViewModel.TryClose(true);
-                                this.Log().Info("Closed update UI.");
-                            }
-
-                            this.Log().Info("Restarting application after update.");
-                            //TODO: Add check to see if restart after install is required.
-                            RestartApplication();
                         }
                     }
                     catch (System.Net.WebException ex)
@@ -162,6 +141,7 @@ namespace Seemon.Todo.Utilities
                         this.Log().Error(string.Format("UpdateApp failed with the unexpected exception {0}", ex.Message));
                         hasUpdated = false;
                     }
+                    updating = false;
                 }
             }
             return hasUpdated;
