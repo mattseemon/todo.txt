@@ -51,6 +51,7 @@ namespace Seemon.Todo
                 onAppUpdate: v =>
                 {
                     updateManager.CreateShortcutForThisExe();
+                    updateManager.CreateShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup, true, string.Empty, null);
                 },
                 onAppUninstall: v => updateManager.RemoveShortcutForThisExe(),
                 onFirstRun: () => ShowWelcomeWindow = true);
