@@ -300,11 +300,9 @@ namespace Seemon.Todo.ViewModels
                 (x) => 
                 {
                     this.UpdateProgress = x;
-                });
+                }, this.OnAppUpdatePreUpdate);
 
             this.applicationUpdating = this.appUpdater.WhenAnyValue(x => x.Updating).ToProperty(this, x => x.Updating);
-
-            Locator.CurrentMutable.Register(() => this.appUpdater, typeof(AppUpdater));
         }
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -312,6 +310,30 @@ namespace Seemon.Todo.ViewModels
             this.HelpViewModel.TryClose();
             this.AboutViewModel.TryClose();
             this.OptionsViewModel.TryClose();
+        }
+
+        public async System.Threading.Tasks.Task<bool> OnAppUpdatePreUpdate(string oldVersion, string newVersion)
+        {
+            TaskDialog td = new TaskDialog();
+
+            td.InstructionText = "Application Update Available";
+            td.Caption = "TODO.TXT - UPDATE";
+            td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", oldVersion, newVersion);
+            td.Icon = TaskDialogStandardIcon.Information;
+            td.StandardButtons = TaskDialogStandardButtons.Cancel;
+
+            TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
+            btnUpdateNow.Click += (o, e) =>
+            {
+                td.Close(TaskDialogResult.Ok);
+            };
+
+            td.Controls.Add(btnUpdateNow);
+
+            if (td.Show() == TaskDialogResult.Ok)
+                return true;
+
+            return false;
         }
 
         public void OnTaskTextKeyUp(object sender, KeyEventArgs e)

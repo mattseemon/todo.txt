@@ -13,7 +13,6 @@ namespace Seemon.Todo.Utilities
         public static string DeleteMarker = string.Empty;
 
         public static string UpdateLocation = "http://projects.mattseemon.in/todo.txt/releases";
-        public static string PortableLocation = "http://projects.mattseemon.in/todo.txt/releases/TodotxtPortable.zip";
 
         public static string Title;
         public static string Product;
