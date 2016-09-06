@@ -7,13 +7,14 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Seemon.Todo.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Net;
+using System.IO;
 
 namespace Seemon.Todo.Utilities
 {
     public class AppUpdater : ReactiveObject, IEnableLogger, IDisposable
     {
         private Action<int> ProgressChanged;
-        private Func<string, string, Task<bool>> PreUpdate;
 
         private readonly IUpdateManager updateManager;
         NuGet.SemanticVersion currentVersion;
@@ -29,7 +30,7 @@ namespace Seemon.Todo.Utilities
             set { this.RaiseAndSetIfChanged(ref this.updating, value); }
         }
 
-        public AppUpdater(IUpdateManager updateManager, Action<int> progress = null, Func<string, string, Task<bool>> preUpdate = null)
+        public AppUpdater(IUpdateManager updateManager, Action<int> progress = null)
         {
             this.Log().Info("Initialize Application Updater.");
 
@@ -37,10 +38,12 @@ namespace Seemon.Todo.Utilities
             this.windowManager = Locator.Current.GetService<IWindowManager>();
             this.settings = Locator.Current.GetService<UserSettings>();
             this.ProgressChanged = progress;
-            this.PreUpdate = preUpdate;
 
+#if PORTABLE
+            this.UpdateAppCommand = ReactiveCommand.CreateAsyncTask(_ => this.UpdatePortableAppAsync());
+#else
             this.UpdateAppCommand = ReactiveCommand.CreateAsyncTask(_ => this.UpdateAppAsync(this.settings.ConfirmBeforeUpdate));
-
+#endif
             if (this.settings.CheckForUpdates)
                 Observable.Interval(TimeSpan.FromHours(8), RxApp.TaskpoolScheduler)
                     .StartWith(0)
@@ -115,7 +118,27 @@ namespace Seemon.Todo.Utilities
                 if(showUI)
                 {
                     this.Log().Info("Display update UI.");
-                    updating = await PreUpdate(this.currentVersion.ToString(), this.UpdateVersion.ToString());
+
+                    TaskDialog td = new TaskDialog();
+
+                    td.InstructionText = "Application Update Available";
+                    td.Caption = "TODO.TXT - UPDATE";
+                    td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", this.currentVersion.ToString(), this.UpdateVersion.ToString());
+                    td.Icon = TaskDialogStandardIcon.Information;
+                    td.StandardButtons = TaskDialogStandardButtons.Cancel;
+
+                    TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
+                    btnUpdateNow.Click += (o, e) =>
+                    {
+                        td.Close(TaskDialogResult.Ok);
+                    };
+
+                    td.Controls.Add(btnUpdateNow);
+
+                    if (td.Show() != TaskDialogResult.Ok)
+                        updating = false;
+
+                    return false;
                 }
 
                 if(updating)
@@ -145,6 +168,42 @@ namespace Seemon.Todo.Utilities
                 }
             }
             return hasUpdated;
+        }
+
+        public async Task<bool> UpdatePortableAppAsync()
+        {
+            this.Log().Info("Start Application Update.");
+            bool hasUpdate = await this.CheckUpdateAsync();
+
+            settings.LastUpdateCheck = DateTime.Now;
+
+            if(hasUpdate)
+            {
+                TaskDialog td = new TaskDialog();
+
+                td.InstructionText = "Application Update Available";
+                td.Caption = "TODO.TXT - UPDATE";
+                td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", CurrentVersion.ToString(), UpdateVersion.ToString());
+                td.Icon = TaskDialogStandardIcon.Information;
+                td.StandardButtons = TaskDialogStandardButtons.Cancel;
+
+                TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download this update now");
+                btnUpdateNow.Click += (o, e) =>
+                {
+                    WebClient webClient = new WebClient();
+                    webClient.DownloadFile(AppInfo.PortableLocation, Path.Combine(KnowFolders.GetPath(KnownFolder.Downloads), "TodotxtPortable.zip"));
+                    td.Close(TaskDialogResult.Ok);
+                };
+
+                td.Controls.Add(btnUpdateNow);
+
+                if (td.Show() == TaskDialogResult.Ok)
+                    return true;
+
+                return false;
+            }
+
+            return true;
         }
 
         public void RestartApplication()
