@@ -45,6 +45,11 @@ namespace Seemon.Todo.ViewModels
         private AppUpdater appUpdater = null;
 
         private int updateProgress = 0;
+        private int totalTasks = 0;
+        private int filteredTasks = 0;
+        private int incompleteTasks = 0;
+        private int tasksDueToday = 0;
+        private int tasksOverDue = 0;
 
         public readonly ObservableAsPropertyHelper<SortType> sortType;
         public readonly ObservableAsPropertyHelper<string> currentFilter;
@@ -139,6 +144,36 @@ namespace Seemon.Todo.ViewModels
         {
             get { return this.updateProgress; }
             set { this.RaiseAndSetIfChanged(ref this.updateProgress, value); }
+        }
+
+        public int TotalTasks
+        {
+            get { return this.totalTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.totalTasks, value); }
+        }
+
+        public int FilteredTasks
+        {
+            get { return this.filteredTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.filteredTasks, value); }
+        }
+
+        public int IncompleteTasks
+        {
+            get { return this.incompleteTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.incompleteTasks, value); }
+        }
+
+        public int TasksDueToday
+        {
+            get { return this.tasksDueToday; }
+            set { this.RaiseAndSetIfChanged(ref this.tasksDueToday, value); }
+        }
+
+        public int TasksOverDue
+        {
+            get { return this.tasksOverDue; }
+            set { this.RaiseAndSetIfChanged(ref this.tasksOverDue, value); }
         }
 
         public bool Updating
@@ -927,14 +962,50 @@ namespace Seemon.Todo.ViewModels
                 else
                     collectionView.GroupDescriptions.Clear();
 
+                var filteredTasks = sortedTasks.ToList();
+
                 window.lbTasks.ItemsSource = sortedTasks;
                 window.lbTasks.UpdateLayout();
+
+                UpdateSummary(filteredTasks);
             }
             catch (Exception ex)
             {
                 //this.Log().ErrorException("Error while sorting tasks", ex);
                 ex.Handle("Error while sorting tasks", (IEnableLogger)this, this.window);
             }
+        }
+
+        protected void UpdateSummary(List<Task> selectedTaskList)
+        {
+            this.TotalTasks = TaskManager.Tasks.Count;
+            this.FilteredTasks = selectedTaskList.Count;
+
+            int incompleteTask = 0, dueTodayTask = 0, overDueTask = 0;
+
+            foreach(Task t in selectedTaskList)
+            {
+                if(!t.Completed)
+                {
+                    incompleteTask++;
+
+                    if(!string.IsNullOrEmpty(t.DueDate))
+                    {
+                        DateTime dueDate;
+                        if(DateTime.TryParseExact(t.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dueDate))
+                        {
+                            if (dueDate.Date == DateTime.Today.Date)
+                                dueTodayTask++;
+                            else if (dueDate.Date < DateTime.Today)
+                                overDueTask++;
+                        }
+                    }
+                }
+            }
+
+            this.IncompleteTasks = incompleteTask;
+            this.TasksOverDue = overDueTask;
+            this.TasksDueToday = dueTodayTask;
         }
 
         private bool IsTaskSelected()

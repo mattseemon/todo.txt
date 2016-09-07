@@ -315,6 +315,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
@@ -329,15 +330,20 @@
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
-                <TextBlock Text="PORTABLE" FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Portable Mode" util:ToolTipExtended.ToolTipContent="Application is currently in portable mode."  />
+                <TextBlock FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Tasks Summary" util:ToolTipExtended.ToolTipContent="Shows number of filtered against total, incomplete, due today and over due tasks in todo.txt" >
+                    TASKS: <Run Text="{Binding Path=FilteredTasks}" /> of <Run Text="{Binding Path=TotalTasks}" /> INCOMPLETE : <Run Foreground="Blue" Text="{Binding Path=IncompleteTasks}" /> DUE TODAY : <Run Foreground="Green" Text="{Binding Path=TasksDueToday}" /> OVERDUE : <Run Foreground="Red" Text="{Binding Path=TasksOverDue}" />
+                </TextBlock>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
-                <TextBlock Text="{Binding Path=SortType, Converter={StaticResource StringToUpperConverter}}" Margin="0 0 5 0" FontWeight="Bold" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Active Sort" util:ToolTipExtended.ToolTipContent="Displays the currently active sort" />
+                <TextBlock Text="PORTABLE" FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Portable Mode" util:ToolTipExtended.ToolTipContent="Application is currently in portable mode."  />
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
+                <TextBlock Text="{Binding Path=SortType, Converter={StaticResource StringToUpperConverter}}" Margin="0 0 5 0" FontWeight="Bold" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Active Sort" util:ToolTipExtended.ToolTipContent="Displays the currently active sort" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
                 <TextBlock Text="FLT" Margin="0 0 5 0" FontWeight="Bold" Visibility="{Binding Path=CurrentFilter, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}" util:ToolTipExtended.ToolTipHeader="Filter Active" util:ToolTipExtended.ToolTipContent="Notifies if there is an active filter on" ToolTip="{StaticResource TextBlockToolTip}"/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="4">
+            <StatusBarItem Grid.Column="5">
                 <TextBlock Text="{Binding Source={x:Static System:DateTime.Now}, StringFormat='MM/dd/yyyy'}" Margin="0 0 10 0" FontWeight="Bold" util:ToolTipExtended.ToolTipHeader="Today" util:ToolTipExtended.ToolTipContent="Displays the current date" ToolTip="{StaticResource TextBlockToolTip}" />
             </StatusBarItem>
         </StatusBar>
