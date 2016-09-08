@@ -319,6 +319,8 @@ namespace Seemon.Todo.ViewModels
 
             this.selectedTasks = new List<Task>();
             this.SortType = UserSettings.SelectedSortType;
+
+            this.Log().Info("Completed initalization");
         }
 
         protected override void OnViewReady(object view)
@@ -326,11 +328,13 @@ namespace Seemon.Todo.ViewModels
             base.OnViewReady(view);
             window = (ShellView)view;
 
+            this.Log().Info("Loading last opened todo.txt file.");
             if (!string.IsNullOrEmpty(this.UserSettings.LastLoadedFilePath) && File.Exists(this.UserSettings.LastLoadedFilePath))
                 LoadTasks(this.UserSettings.LastLoadedFilePath);
             else
                 this.UserSettings.LastLoadedFilePath = string.Empty;
 
+            this.Log().Info("Initializing application updater");
             this.appUpdater = new AppUpdater(Locator.Current.GetService<IUpdateManager>(),
                 (x) => 
                 {
@@ -342,6 +346,7 @@ namespace Seemon.Todo.ViewModels
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            this.Log().Info("Closing all windows.");
             this.HelpViewModel.TryClose();
             this.AboutViewModel.TryClose();
             this.OptionsViewModel.TryClose();
@@ -711,8 +716,6 @@ namespace Seemon.Todo.ViewModels
             SetSelectedTasks();
         }
 
-
-
         private void ShowHideCalendar()
         {
             string calendarString = string.Empty;
@@ -978,6 +981,7 @@ namespace Seemon.Todo.ViewModels
 
         protected void UpdateSummary(List<Task> selectedTaskList)
         {
+            this.Log().Info("Updating task summary");
             this.TotalTasks = TaskManager.Tasks.Count;
             this.FilteredTasks = selectedTaskList.Count;
 

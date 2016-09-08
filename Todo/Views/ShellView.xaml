@@ -330,7 +330,7 @@
                 </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
-                <TextBlock FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Tasks Summary" util:ToolTipExtended.ToolTipContent="Shows number of filtered against total, incomplete, due today and over due tasks in todo.txt" >
+                <TextBlock FontWeight="Bold" Margin="0 0 5 0" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Tasks Summary" util:ToolTipExtended.ToolTipContent="Shows number of filtered against total, incomplete, due today and over due tasks in todo.txt" >
                     TASKS: <Run Text="{Binding Path=FilteredTasks}" /> of <Run Text="{Binding Path=TotalTasks}" /> INCOMPLETE : <Run Foreground="Blue" Text="{Binding Path=IncompleteTasks}" /> DUE TODAY : <Run Foreground="Green" Text="{Binding Path=TasksDueToday}" /> OVERDUE : <Run Foreground="Red" Text="{Binding Path=TasksOverDue}" />
                 </TextBlock>
             </StatusBarItem>

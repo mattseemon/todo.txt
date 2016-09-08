@@ -136,7 +136,7 @@ namespace Seemon.Todo.Utilities
                     td.Controls.Add(btnUpdateNow);
 
                     if (td.Show() != TaskDialogResult.Ok)
-                        updating = false;
+                        updating = true;
 
                     return false;
                 }
