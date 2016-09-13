@@ -95,6 +95,7 @@
         <KeyBinding Command="{Binding Path=FileReloadFileCommand}" Key="F5" />
         <KeyBinding Command="{Binding Path=FileExitCommand}" />
         <KeyBinding Command="{Binding Path=TaskDuplicateCommand}" Key="V" Modifiers="Ctrl+Shift" />
+        <KeyBinding Command="{Binding Path=TaskSummaryCommand}" Key="I" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding Path=ToolsOptionsCommand}" Key="F10" />
         <KeyBinding Command="{Binding Path=HelpAboutCommand}" Key="F12" />
         <KeyBinding Command="{Binding Path=HelpViewHelpCommand}" Key="OemQuestion" Modifiers="Shift" />
@@ -166,6 +167,8 @@
                 <MenuItem Header="Increase Due Date by 1 Day" InputGestureText="Ctrl+Shift+Up" Command="{Binding Path=TaskIncreaseDueDateCommand}" />
                 <MenuItem Header="Decrease Due Date by 1 Day" InputGestureText="Ctrl+Shift+Down" Command="{Binding Path=TaskDecreaseDueDateCommand}" />
                 <MenuItem Header="Remove Due Date" InputGestureText="Ctrl+Shift+Left/Right" Command="{Binding Path=TaskRemoveDueDateCommand}" />
+                <Separator />
+                <MenuItem Header="Task Summary" InputGestureText="Ctrl+Shift+I" Command="{Binding Path=TaskSummaryCommand}" />
             </MenuItem>
             <MenuItem Header="_SORT" Style="{StaticResource TitleMenu}">
                 <MenuItem Header="_Order in File" IsCheckable="True" InputGestureText="Ctrl+0" IsChecked="{Binding Path=SortType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=None}" Command="{Binding Path=SortCommand}" />

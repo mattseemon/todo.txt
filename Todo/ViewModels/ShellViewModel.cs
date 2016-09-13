@@ -43,6 +43,7 @@ namespace Seemon.Todo.ViewModels
         private bool showPrintPreview = false;
         private bool showUpdating = false;
         private AppUpdater appUpdater = null;
+        private IEnumerable<Task> sortedTasks;
 
         private int updateProgress = 0;
         private int totalTasks = 0;
@@ -88,6 +89,7 @@ namespace Seemon.Todo.ViewModels
         public ReactiveCommand<object> TaskIncreaseDueDateCommand { get; private set; }
         public ReactiveCommand<object> TaskDecreaseDueDateCommand { get; private set; }
         public ReactiveCommand<object> TaskRemoveDueDateCommand { get; private set; }
+        public ReactiveCommand<object> TaskSummaryCommand { get; private set; }
         public ReactiveCommand<object> KeyUpEventCommand { get; private set; }
         public ReactiveCommand<object> KeyDownEventCommand { get; private set; }
         public ReactiveCommand<object> SortCommand { get; private set; }
@@ -188,7 +190,7 @@ namespace Seemon.Todo.ViewModels
                 else
                     this.ShowUpdating = false;
             }
-        }
+        }   
 
         public ShellViewModel()
         {
@@ -270,7 +272,10 @@ namespace Seemon.Todo.ViewModels
 
             this.TaskRemoveDueDateCommand = ReactiveCommand.Create(this.WhenAny(x => x.window.lbTasks.SelectedItems.Count, y => y.window.txtTask.IsFocused, (x, y) => x.Value > 0 && !y.Value));
             this.TaskRemoveDueDateCommand.Subscribe(x => this.OnRemoveDueDate());
-            
+
+            this.TaskSummaryCommand = ReactiveCommand.Create();
+            this.TaskSummaryCommand.Subscribe(x => this.OnTaskSummary());
+
             this.SortCommand = ReactiveCommand.Create();
             this.SortCommand.Subscribe(x => this.OnSort(x));
 
@@ -595,6 +600,12 @@ namespace Seemon.Todo.ViewModels
         private void OnRemoveDueDate()
         {
             ModifySelectedTasks(RemoveTaskDueDate, null);
+        }
+
+        private void OnTaskSummary()
+        {
+            SummaryViewModel summaryViewModel = new SummaryViewModel(this.TaskManager.Tasks, sortedTasks.ToList());
+            windowManager.ShowDialog(summaryViewModel);
         }
 
         private void OnDefineFilters()
@@ -926,7 +937,7 @@ namespace Seemon.Todo.ViewModels
 
             try
             {
-                var sortedTasks = FilterTasks(TaskManager.Tasks);
+                sortedTasks = FilterTasks(TaskManager.Tasks);
                 sortedTasks = SortTasks(sortedTasks);
 
                 switch (SortType)
