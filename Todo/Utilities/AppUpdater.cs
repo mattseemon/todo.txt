@@ -121,6 +121,9 @@ namespace Seemon.Todo.Utilities
                     this.Log().Info("Display update UI.");
                     TaskDialog td = new TaskDialog();
 
+                    this.Log().Debug("DEBUG: Disbabling auto update since we have to show UI.");
+                    this.updating = false;
+
                     td.InstructionText = "Application Update Available";
                     td.Caption = "TODO.TXT - UPDATE";
                     td.Text = string.Format("A New version of TODO.TXT is available. Do you want to download and install it?\n\nInstalled Version: {0}\nUpdate Version: {1}", this.currentVersion.ToString(), this.UpdateVersion.ToString());
@@ -130,6 +133,7 @@ namespace Seemon.Todo.Utilities
                     TaskDialogCommandLink btnUpdateNow = new TaskDialogCommandLink("btnUpdateNow", "Download and install this update now");
                     btnUpdateNow.Click += (o, e) =>
                     {
+                        this.Log().Debug("DEBUG: Update Alert OK  Clicked.");
                         td.Close(TaskDialogResult.Ok);
                     };
 
@@ -137,8 +141,6 @@ namespace Seemon.Todo.Utilities
 
                     if (td.Show() != TaskDialogResult.Ok)
                         updating = true;
-
-                    return false;
                 }
 
                 if(updating)

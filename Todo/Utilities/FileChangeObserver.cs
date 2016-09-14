@@ -53,7 +53,7 @@ namespace Seemon.Todo.Utilities
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            this.Log().Debug("File Changed");
+            this.Log().Debug("DEBUG: File Changed");
             Thread.Sleep(1000);
 
             if (this.OnFileChanged != null)

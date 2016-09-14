@@ -763,11 +763,11 @@ namespace Seemon.Todo.ViewModels
                 fileChangeObserver = null;
             }
 
-            this.Log().Debug("Enabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
+            this.Log().Debug("DEBUG: Enabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
             fileChangeObserver = new FileChangeObserver();
             fileChangeObserver.OnFileChanged += () => window.Dispatcher.BeginInvoke(new System.Action(ReloadFile));
             fileChangeObserver.ObserveFile(UserSettings.LastLoadedFilePath);
-            this.Log().Debug("File change observer enabled");
+            this.Log().Debug("DEBUG: File change observer enabled");
         }
 
         private void DisableFileChangeObserver()
@@ -775,10 +775,10 @@ namespace Seemon.Todo.ViewModels
             if (fileChangeObserver == null)
                 return;
 
-            this.Log().Debug("Diabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
+            this.Log().Debug("DEBUG: Diabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
             fileChangeObserver.Dispose();
             fileChangeObserver = null;
-            this.Log().Debug("File change observer disabled");
+            this.Log().Debug("DEBUG: File change observer disabled");
         }
 
         private void ToggleFileChangeObserver()
@@ -895,7 +895,7 @@ namespace Seemon.Todo.ViewModels
 
         public void LoadTasks(string filePath)
         {
-            this.Log().Debug("Loading tasks from file {0}", filePath);
+            this.Log().Info("Loading tasks from file {0}", filePath);
             try
             {
                 this.TaskManager = new TaskList(filePath, UserSettings.PreserveWhiteSpaceAndBlankLines);
@@ -914,7 +914,7 @@ namespace Seemon.Todo.ViewModels
 
         private void ReloadFile()
         {
-            this.Log().Debug("Reloading todo.txt file");
+            this.Log().Info("Reloading todo.txt file");
             try
             {
                 TaskManager.ReloadTasks();
@@ -1094,7 +1094,7 @@ namespace Seemon.Todo.ViewModels
 
         public IEnumerable<Task> SortTasks(IEnumerable<Task> tasks)
         {
-            this.Log().Debug("Sorting {0} tasks by {1}", tasks.Count().ToString(), SortType.ToString());
+            this.Log().Debug("DEBUG: Sorting {0} tasks by {1}", tasks.Count().ToString(), SortType.ToString());
 
             switch(SortType)
             {
