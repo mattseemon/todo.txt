@@ -347,6 +347,8 @@ namespace Seemon.Todo.ViewModels
                 });
 
             this.applicationUpdating = this.appUpdater.WhenAnyValue(x => x.Updating).ToProperty(this, x => x.Updating);
+
+            Locator.CurrentMutable.Register(() => this.appUpdater, typeof(AppUpdater));
         }
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)

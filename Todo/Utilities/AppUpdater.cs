@@ -139,8 +139,10 @@ namespace Seemon.Todo.Utilities
 
                     td.Controls.Add(btnUpdateNow);
 
-                    if (td.Show() != TaskDialogResult.Ok)
+                    if (td.Show() == TaskDialogResult.Ok)
                         updating = true;
+
+                    this.Log().Debug("DEBUG: Application updating set to {0}", updating);
                 }
 
                 if(updating)
@@ -193,7 +195,7 @@ namespace Seemon.Todo.Utilities
                 btnUpdateNow.Click += (o, e) =>
                 {
                     WebClient webClient = new WebClient();
-                    webClient.DownloadFile(AppInfo.PortableLocation, Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "TodotxtPortable.zip"));
+                    webClient.DownloadFile(AppInfo.PortableLocation, Path.Combine(KnownFolders.GetPath(KnownFolder.Downloads), "TodotxtPortable.7z"));
                     td.Close(TaskDialogResult.Ok);
                 };
 
