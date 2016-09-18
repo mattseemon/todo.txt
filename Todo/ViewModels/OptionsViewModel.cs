@@ -7,10 +7,6 @@ using Seemon.Todo.Utilities;
 using Seemon.Todo.Views;
 using Splat;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -222,7 +218,6 @@ namespace Seemon.Todo.ViewModels
 
         public ReactiveCommand<object> BrowseArchiveCommand { get; private set; }
         public ReactiveCommand<object> ResetToDefaultsCommand { get; private set; }
-        public ReactiveCommand<object> UpdateNowCommand { get; private set; }
 
         public OptionsViewModel()
         {
@@ -264,16 +259,6 @@ namespace Seemon.Todo.ViewModels
 
             this.ResetToDefaultsCommand = ReactiveCommand.Create();
             this.ResetToDefaultsCommand.Subscribe(x => this.DoResetToDefaults());
-
-            this.UpdateNowCommand = ReactiveCommand.Create();
-            this.UpdateNowCommand.Subscribe(x => this.DoUpdateNow());
-        }
-
-        private async void DoUpdateNow()
-        {
-            this.Log().Info("Starting manual application update check.");
-            await Locator.Current.GetService<AppUpdater>().UpdateAppAsync(true);
-            this.Log().Info("Completed manual application update check.");
         }
 
         private void DoResetToDefaults()

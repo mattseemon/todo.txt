@@ -118,10 +118,11 @@
                 <StackPanel>
                     <CheckBox Content="Automatically install updates (recommended)" Margin="3 3 3 3"  IsChecked="{Binding Path=CheckForUpdates}"/>
                     <CheckBox Content="Ask before downloading and installing updates" Margin="3 0 3 3" IsChecked="{Binding Path=ConfirmBeforeUpdate}" />
-                    <Button Height="23" Width="120" Content="Check Now" Margin="4 9 3 3" HorizontalAlignment="Left" Command="{Binding Path=UpdateNowCommand}" />
-                    <TextBlock Margin="4 0 3 3" Text="Application will check for updates automatically every 8 hours." />
+                    <TextBlock Margin="4 9 3 3" TextWrapping="Wrap">
+                        Application will check for updates automatically every 8 hours if <Bold>Automatically install updates</Bold> option is enabled above. To manually check, please select the <Bold>Check for Updates</Bold> option under the <Bold>Help</Bold> menu.
+                    </TextBlock>
 
-                    <TextBlock Margin="3 9 3 0"  Text="{Binding Path=LastUpdateLabel}" />
+                    <TextBlock Margin="3 3 3 0"  Text="{Binding Path=LastUpdateLabel}" />
                 </StackPanel>
             </TabItem>
         </TabControl>

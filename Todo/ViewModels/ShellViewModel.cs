@@ -41,7 +41,6 @@ namespace Seemon.Todo.ViewModels
         private string statusInformation = string.Empty;
         private bool showCalendar = false;
         private bool showPrintPreview = false;
-        private bool showUpdating = false;
         private AppUpdater appUpdater = null;
         private IEnumerable<Task> sortedTasks;
 
@@ -54,12 +53,12 @@ namespace Seemon.Todo.ViewModels
 
         public readonly ObservableAsPropertyHelper<SortType> sortType;
         public readonly ObservableAsPropertyHelper<string> currentFilter;
-        public ObservableAsPropertyHelper<bool> applicationUpdating;
 
         public UserSettings UserSettings { get; private set; }
         public OptionsViewModel OptionsViewModel { get; private set; }
         public AboutViewModel AboutViewModel { get; private set; }
         public HelpViewModel HelpViewModel { get; private set; }
+        public NotificationViewModel Notification { get; private set; }
 
         public ReactiveCommand<object> FileNewCommand { get; private set; }
         public ReactiveCommand<object> ToolsOptionsCommand { get; private set; }
@@ -100,6 +99,8 @@ namespace Seemon.Todo.ViewModels
         public ReactiveCommand<object> HelpViewErrorLogCommand { get; private set; }
         public ReactiveCommand<object> HelpCheckForUpdatesCommand { get; private set; }
 
+        public IDisposable updateStatusSubscription;
+
         public TaskList TaskManager { get; set; }
 
         public SortType SortType
@@ -134,12 +135,6 @@ namespace Seemon.Todo.ViewModels
         {
             get { return this.showPrintPreview; }
             set { this.RaiseAndSetIfChanged(ref this.showPrintPreview, value); }
-        }
-
-        public bool ShowUpdating
-        {
-            get { return this.showUpdating; }
-            set { this.RaiseAndSetIfChanged(ref this.showUpdating, value); }
         }
 
         public int UpdateProgress
@@ -178,20 +173,6 @@ namespace Seemon.Todo.ViewModels
             set { this.RaiseAndSetIfChanged(ref this.tasksOverDue, value); }
         }
 
-        public bool Updating
-        {
-            get { return this.applicationUpdating.Value; }
-            set
-            {
-                if (this.UserSettings.ConfirmBeforeUpdate && value)
-                {
-                    this.ShowUpdating = true;
-                }
-                else
-                    this.ShowUpdating = false;
-            }
-        }   
-
         public ShellViewModel()
         {
             this.Log().Info("Initializing todo.txt window");
@@ -203,6 +184,7 @@ namespace Seemon.Todo.ViewModels
             this.OptionsViewModel = new OptionsViewModel();
             this.AboutViewModel = new AboutViewModel();
             this.HelpViewModel = new HelpViewModel();
+            this.Notification = new NotificationViewModel();
             
             this.FileNewCommand = ReactiveCommand.Create();
             this.FileNewCommand.Subscribe(x => this.OnFileNew());
@@ -340,15 +322,29 @@ namespace Seemon.Todo.ViewModels
                 this.UserSettings.LastLoadedFilePath = string.Empty;
 
             this.Log().Info("Initializing application updater");
-            this.appUpdater = new AppUpdater(Locator.Current.GetService<IUpdateManager>(),
-                (x) => 
-                {
-                    this.UpdateProgress = x;
-                });
-
-            this.applicationUpdating = this.appUpdater.WhenAnyValue(x => x.Updating).ToProperty(this, x => x.Updating);
+            this.appUpdater = new AppUpdater(Locator.Current.GetService<IUpdateManager>());
+            this.updateStatusSubscription = this.appUpdater.Status.Subscribe(this.OnUpdateStatusChanged);
 
             Locator.CurrentMutable.Register(() => this.appUpdater, typeof(AppUpdater));
+        }
+
+        private void OnUpdateStatusChanged(AppUpdater.UpdateStatus currentStatus)
+        {
+            switch(currentStatus)
+            {
+                case AppUpdater.UpdateStatus.NoUpdateFound:
+                    if(manualUpdateCheck)
+                    {
+                        this.Notification.ShowInformation("There are no updates currently available.");
+                    }
+                    break;
+                case AppUpdater.UpdateStatus.UpdateComplete:
+                    this.Notification.ShowInformation("The latest version of TODO.TXT has been installed. Please restart the application to see the new changes", "Close", 0, () =>
+                    {
+                        this.appUpdater.RestartApplication();
+                    }, "Restart");
+                    break;
+            }
         }
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -633,10 +629,13 @@ namespace Seemon.Todo.ViewModels
             ApplyFilterPreset(preset);
         }
 
+        private bool manualUpdateCheck = false;
         private async void OnCheckForUpdates()
         {
             this.Log().Info("Starting manual application update check.");
+            this.manualUpdateCheck = true;
             await Locator.Current.GetService<AppUpdater>().UpdateAppAsync(true);
+            this.manualUpdateCheck = false;
             this.Log().Info("Completed manual application update check.");
         }
 

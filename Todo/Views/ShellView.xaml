@@ -13,7 +13,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         
         mc:Ignorable="d"
-        Title="TODO.TXT" Height="480" Width="640" ResizeMode="CanResizeWithGrip" MinHeight="480" MinWidth="640" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded" SizeChanged="OnWindowSizeChanged" LocationChanged="OnWindowLocationChanged">
+        Title="TODO.TXT" Height="500" Width="700" ResizeMode="CanResizeWithGrip" MinHeight="500" MinWidth="700" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded" SizeChanged="OnWindowSizeChanged" LocationChanged="OnWindowLocationChanged">
     <Window.Resources>
         <local:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
         <local:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
@@ -202,12 +202,15 @@
             <MenuItem Header="_HELP" Style="{StaticResource TitleMenu}">
                 <MenuItem Header="_View Help" InputGestureText="?" Command="{Binding Path=HelpViewHelpCommand}" />
                 <MenuItem Header="_View Error Log" Command="{Binding Path=HelpViewErrorLogCommand}" />
+                <Separator />
                 <MenuItem Header="_Check for Updates" Command="{Binding Path=HelpCheckForUpdatesCommand}" />
                 <Separator />
                 <MenuItem Header="_About" InputGestureText="F12" Command="{Binding Path=HelpAboutCommand}"/>
             </MenuItem>
         </Menu>
+
         <Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0" />
+        <views:NotificationView DataContext="{Binding Path=Notification}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BooleanToVisibile}}" MaxWidth="700" Panel.ZIndex="1" Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalAlignment="Top" />
         <ctrl:IntellisenseTextBox Grid.Row="2" Grid.ColumnSpan="2" Margin="3" Height="23" VerticalContentAlignment="Center" x:Name="txtTask" 
                                   CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" Cursor="IBeam"
                                   TaskList="{Binding Path=TaskManager}"
@@ -323,14 +326,8 @@
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem Visibility="{Binding Path=ShowUpdating, Converter={StaticResource BooleanToCollapsed}}" Grid.Column="0">
+            <StatusBarItem Grid.Column="0">
                 <TextBlock Text="{Binding StatusInformation}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Calendar" util:ToolTipExtended.ToolTipContent="Shows the dates and days for the next 7 days." />
-            </StatusBarItem>
-            <StatusBarItem Grid.Column="0" Visibility="{Binding Path=ShowUpdating, Converter={StaticResource BooleanToVisibile}}">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                    <TextBlock Text="A new version of TODO.TXT is being installed." Margin="5 0" />
-                    <ProgressBar Value="{Binding Path=UpdateProgressValue}" Width="150" Margin="0 0 5 0" />
-                </StackPanel>
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
                 <TextBlock FontWeight="Bold" Margin="0 0 5 0" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Tasks Summary" util:ToolTipExtended.ToolTipContent="Shows number of filtered against total, incomplete, due today and over due tasks in todo.txt" >
