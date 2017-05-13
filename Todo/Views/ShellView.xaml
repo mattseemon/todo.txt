@@ -93,7 +93,7 @@
         <KeyBinding Command="{Binding Path=FilePrintCommand}" Key="P" Modifiers="Ctrl" />
         <KeyBinding Command="{Binding Path=FilePrintPreviewCommand}" Key="P" Modifiers="Shift+Ctrl" />
         <KeyBinding Command="{Binding Path=FileReloadFileCommand}" Key="F5" />
-        <KeyBinding Command="{Binding Path=FileExitCommand}" />
+        <KeyBinding Command="{Binding Path=FileExitCommand}" Key="Q" Modifiers="Ctrl" />
         <KeyBinding Command="{Binding Path=TaskDuplicateCommand}" Key="V" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding Path=TaskSummaryCommand}" Key="I" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding Path=ToolsOptionsCommand}" Key="F10" />
@@ -141,7 +141,7 @@
                 <MenuItem Header="_Archive Completed Tasks" InputGestureText="A" Command="{Binding Path=FileArchiveCompletedTasksCommand}" />
                 <MenuItem Header="_Reload File" InputGestureText="F5" Command="{Binding Path=FileReloadFileCommand}" />
                 <Separator />
-                <MenuItem Header="E_xit" Command="{Binding Path=FileExitCommand}" />
+                <MenuItem Header="E_xit" InputGestureText="Ctrl+Q" Command="{Binding Path=FileExitCommand}" />
             </MenuItem>
             <MenuItem Header="_EDIT" Style="{StaticResource TitleMenu}">
                 <MenuItem Header="Cu_t" InputGestureText="Ctrl+X" Command="Cut" />

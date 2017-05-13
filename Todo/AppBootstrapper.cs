@@ -49,7 +49,11 @@ namespace Seemon.Todo
         {
             try
             {
+#if DEBUG
+                updateManager = new UpdateManager(AppInfo.UpdateLocation, "todo.txt");
+#else
                 updateManager = await UpdateManager.GitHubUpdateManager(AppInfo.UpdateLocation);
+#endif
                 SquirrelAwareApp.HandleEvents(
                     onInitialInstall: v =>
                     {

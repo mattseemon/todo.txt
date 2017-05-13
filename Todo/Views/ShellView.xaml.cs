@@ -81,16 +81,23 @@ namespace Seemon.Todo.Views
 
         private void OnHotKeyPressed(HotKey obj)
         {
-            if(this.WindowState == WindowState.Minimized)
+            try
             {
-                this.Show();
-                this.Activate();
-                this.WindowState = WindowState.Normal;
+                if (this.WindowState == WindowState.Minimized)
+                {
+                    this.WindowState = WindowState.Normal;
+                    this.Show();
+                    this.Activate();
+                }
+                else
+                {
+                    this.Hide();
+                    this.WindowState = WindowState.Minimized;
+                }
             }
-            else
+            catch(Exception ex)
             {
-                this.Hide();
-                this.WindowState = WindowState.Minimized;
+                this.Log().ErrorException("HotKey error", ex);
             }
         }
 

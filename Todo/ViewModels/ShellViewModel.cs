@@ -339,10 +339,10 @@ namespace Seemon.Todo.ViewModels
                     }
                     break;
                 case AppUpdater.UpdateStatus.UpdateComplete:
-                    this.Notification.ShowInformation("The latest version of TODO.TXT has been installed. Please restart the application to see the new changes", "Close", 0, () =>
+                    this.Notification.ShowInformation("The latest version of TODO.TXT has been installed. Please restart the application to see the new changes", "Dismiss", 0, () =>
                     {
                         this.appUpdater.RestartApplication();
-                    }, "Restart");
+                    }, "Restart Now");
                     break;
             }
         }
@@ -382,13 +382,11 @@ namespace Seemon.Todo.ViewModels
             {
                 case Key.Escape:
                     updating = null;
-                    if (window.txtTask.Text == string.Empty)
-                    {
-                        GetSelectedTasks();
-                        SetSelectedTasks();
-                    }
-                    else
+                    if (window.txtTask.Text != string.Empty)
                         window.txtTask.Text = string.Empty;
+
+                    GetSelectedTasks();
+                    SetSelectedTasks();                       
                     break;
             }
         }
