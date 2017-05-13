@@ -12,6 +12,7 @@ namespace Seemon.Todo.Utilities
         public static string PortableStoragePath = string.Empty;
         public static string DeleteMarker = string.Empty;
 
+        public static string UpdateLocation = "https://github.com/mattseemon/todo.txt-WPF";
         public static string PortableLocation = "http://projects.mattseemon.in/todo.txt/releases/TodotxtPortable.7z";
 
         public static string Title;
