@@ -19,7 +19,7 @@ namespace Seemon.Todo.Converters
             if (Enum.IsDefined(value.GetType(), value) == false)
                 return DependencyProperty.UnsetValue;
 
-            object parameterValue = (SortType)Enum.Parse(value.GetType(), parameterString);
+            object parameterValue = Enum.Parse(value.GetType(), parameterString);
 
             return parameterValue.Equals(value);
         }

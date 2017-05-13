@@ -16,13 +16,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Seemon.Todo.Extensions;
 
 namespace Seemon.Todo.Views
 {
     /// <summary>
     /// Interaction logic for ShellView.xaml
     /// </summary>
-    public partial class ShellView : Window
+    public partial class ShellView : Window, IEnableLogger
     {
         UserSettings settings = null;
         HotKey hotKey = null;
@@ -55,6 +56,8 @@ namespace Seemon.Todo.Views
             }
             catch(Exception) { }
 
+            this.SetWindowPosition();
+
             lbTasks.Focus();
         }
 
@@ -78,16 +81,23 @@ namespace Seemon.Todo.Views
 
         private void OnHotKeyPressed(HotKey obj)
         {
-            if(this.WindowState == WindowState.Minimized)
+            try
             {
-                this.Show();
-                this.Activate();
-                this.WindowState = WindowState.Normal;
+                if (this.WindowState == WindowState.Minimized)
+                {
+                    this.WindowState = WindowState.Normal;
+                    this.Show();
+                    this.Activate();
+                }
+                else
+                {
+                    this.Hide();
+                    this.WindowState = WindowState.Minimized;
+                }
             }
-            else
+            catch(Exception ex)
             {
-                this.Hide();
-                this.WindowState = WindowState.Minimized;
+                this.Log().ErrorException("HotKey error", ex);
             }
         }
 
@@ -186,6 +196,47 @@ namespace Seemon.Todo.Views
             string[] lines = clipboardText.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
 
             viewModel.InsertStringsAsTasks(lines);
+        }
+
+        private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (e.NewSize.Height > 0 && e.NewSize.Width > 0 && WindowState != WindowState.Maximized)
+            {
+                this.settings.WindowLocation = new Rect(this.Left, this.Top, this.Width, this.Height);
+            }
+            if (WindowState == WindowState.Maximized || WindowState == WindowState.Minimized)
+            {
+                this.settings.WindowLocation = this.RestoreBounds;
+            }
+        }
+
+        private bool IsVisibleOnAnyScreen(Rect rect)
+        {
+            foreach(var screen in System.Windows.Forms.Screen.AllScreens)
+            {
+                if (screen.WorkingArea.IntersectsWith(rect.ToRectangle()))
+                    return true;
+            }
+            return false;
+        }
+
+        private void SetWindowPosition()
+        {
+            if (this.settings.WindowLocation != Rect.Empty && IsVisibleOnAnyScreen(this.settings.WindowLocation))
+            {
+                this.Top = settings.WindowLocation.Top;
+                this.Left = settings.WindowLocation.Left;
+                this.Width = settings.WindowLocation.Width;
+                this.Height = settings.WindowLocation.Height;
+            }
+        }
+
+        private void OnWindowLocationChanged(object sender, EventArgs e)
+        {
+            if (this.Left >= 0 && this.Top >= 0 && (WindowState != WindowState.Maximized || WindowState != WindowState.Minimized))
+            {
+                this.settings.WindowLocation = new Rect(Convert.ToInt32(this.Left), Convert.ToInt32(this.Top), Convert.ToInt32(this.Width), Convert.ToInt32(this.Height));
+            }
         }
     }
 }

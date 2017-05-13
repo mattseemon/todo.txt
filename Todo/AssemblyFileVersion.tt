@@ -53,6 +53,6 @@
   
 using System.Reflection;
 
-[assembly: AssemblyVersion("<#= major #>.<#= minor #>")]
+[assembly: AssemblyVersion("<#= major #>.<#= minor #>.<#= build #>")]
 [assembly: AssemblyFileVersion("<#= major #>.<#= minor #>.<#= build #>.<#= revision #>")]
-[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>-<#= suffix #>")]
+[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>.<#= build #>-<#= suffix #>")]

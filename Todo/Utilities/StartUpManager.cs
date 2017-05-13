@@ -1,8 +1,8 @@
-﻿using IWshRuntimeLibrary;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using Splat;
+using Squirrel;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Security.Principal;
 
@@ -12,28 +12,14 @@ namespace Seemon.Todo.Utilities
     {
         public static void AddApplicationShortcutToCurrentUserStartup()
         {
-            var shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            var shell = new WshShell();
-            var shortcutPath = string.Format(@"{0}\{1}", shortcutLocation, "todo.txt.lnk");
-
-            if (System.IO.File.Exists(shortcutPath))
-                System.IO.File.Delete(shortcutPath);
-
-            var shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
-
-            shortcut.Description = AppInfo.Description;
-            shortcut.WorkingDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
-            shortcut.Save();
+            IUpdateManager updateManager = Locator.Current.GetService<IUpdateManager>();
+            updateManager.CreateShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup, false, string.Empty, null);
         }
 
         public static void RemovApplicationShortcutFromCurrentUserStartup()
         {
-            var shortcutLocation = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            var shortcutPath = string.Format(@"{0}\{1}", shortcutLocation, "todo.txt.lnk");
-
-            if (System.IO.File.Exists(shortcutPath))
-                System.IO.File.Delete(shortcutPath);
+            IUpdateManager updateManager = Locator.Current.GetService<IUpdateManager>();
+            updateManager.RemoveShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup);
         }
 
         public static void CreateCurrentUserShortcut(bool enableStartup)
@@ -42,6 +28,8 @@ namespace Seemon.Todo.Utilities
                 AddApplicationShortcutToCurrentUserStartup();
             else
                 RemovApplicationShortcutFromCurrentUserStartup();
+
+           
         }
 
 

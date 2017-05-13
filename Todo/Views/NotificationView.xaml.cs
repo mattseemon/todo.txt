@@ -10,19 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Seemon.Todo.Views
 {
     /// <summary>
-    /// Interaction logic for OptionsView.xaml
+    /// Interaction logic for NotificationView.xaml
     /// </summary>
-    public partial class OptionsView : Window
+    public partial class NotificationView : UserControl
     {
-        public OptionsView()
+        public NotificationView()
         {
             InitializeComponent();
         }
-
     }
 }

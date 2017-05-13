@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="HelpView" MinHeight="480" MinWidth="640" ShowInTaskbar="False">
     <Grid>
-        <FlowDocumentReader Margin="6">
+        <FlowDocumentReader Margin="6" Zoom="150">
             <FlowDocument>
                 <Paragraph FontSize="18" FontWeight="Bold">Keyboard Shortcuts</Paragraph>
                 <List>
@@ -87,7 +87,7 @@
                         <Paragraph>Ctrl+Shift+C: copy task to edit field</Paragraph>
                     </ListItem>
                     <ListItem>
-                        <Paragraph>Win+Alt+T: hide/unhide windows</Paragraph>
+                        <Paragraph>Win+Alt+O: hide/unhide windows</Paragraph>
                     </ListItem>
                 </List>
                 <Paragraph FontSize="18" FontWeight="Bold">

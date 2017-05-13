@@ -9,6 +9,7 @@ using Seemon.Todo.Models;
 using Seemon.Todo.Utilities;
 using Seemon.Todo.Views;
 using Splat;
+using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -40,6 +41,15 @@ namespace Seemon.Todo.ViewModels
         private string statusInformation = string.Empty;
         private bool showCalendar = false;
         private bool showPrintPreview = false;
+        private AppUpdater appUpdater = null;
+        private IEnumerable<Task> sortedTasks;
+
+        private int updateProgress = 0;
+        private int totalTasks = 0;
+        private int filteredTasks = 0;
+        private int incompleteTasks = 0;
+        private int tasksDueToday = 0;
+        private int tasksOverDue = 0;
 
         public readonly ObservableAsPropertyHelper<SortType> sortType;
         public readonly ObservableAsPropertyHelper<string> currentFilter;
@@ -48,6 +58,7 @@ namespace Seemon.Todo.ViewModels
         public OptionsViewModel OptionsViewModel { get; private set; }
         public AboutViewModel AboutViewModel { get; private set; }
         public HelpViewModel HelpViewModel { get; private set; }
+        public NotificationViewModel Notification { get; private set; }
 
         public ReactiveCommand<object> FileNewCommand { get; private set; }
         public ReactiveCommand<object> ToolsOptionsCommand { get; private set; }
@@ -77,6 +88,7 @@ namespace Seemon.Todo.ViewModels
         public ReactiveCommand<object> TaskIncreaseDueDateCommand { get; private set; }
         public ReactiveCommand<object> TaskDecreaseDueDateCommand { get; private set; }
         public ReactiveCommand<object> TaskRemoveDueDateCommand { get; private set; }
+        public ReactiveCommand<object> TaskSummaryCommand { get; private set; }
         public ReactiveCommand<object> KeyUpEventCommand { get; private set; }
         public ReactiveCommand<object> KeyDownEventCommand { get; private set; }
         public ReactiveCommand<object> SortCommand { get; private set; }
@@ -85,6 +97,9 @@ namespace Seemon.Todo.ViewModels
         public ReactiveCommand<object> PrintPreviewCancelCommand { get; private set; }
         public ReactiveCommand<object> ToolsSwitchModeCommand { get; private set; }
         public ReactiveCommand<object> HelpViewErrorLogCommand { get; private set; }
+        public ReactiveCommand<object> HelpCheckForUpdatesCommand { get; private set; }
+
+        public IDisposable updateStatusSubscription;
 
         public TaskList TaskManager { get; set; }
 
@@ -122,7 +137,41 @@ namespace Seemon.Todo.ViewModels
             set { this.RaiseAndSetIfChanged(ref this.showPrintPreview, value); }
         }
 
-        
+        public int UpdateProgress
+        {
+            get { return this.updateProgress; }
+            set { this.RaiseAndSetIfChanged(ref this.updateProgress, value); }
+        }
+
+        public int TotalTasks
+        {
+            get { return this.totalTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.totalTasks, value); }
+        }
+
+        public int FilteredTasks
+        {
+            get { return this.filteredTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.filteredTasks, value); }
+        }
+
+        public int IncompleteTasks
+        {
+            get { return this.incompleteTasks; }
+            set { this.RaiseAndSetIfChanged(ref this.incompleteTasks, value); }
+        }
+
+        public int TasksDueToday
+        {
+            get { return this.tasksDueToday; }
+            set { this.RaiseAndSetIfChanged(ref this.tasksDueToday, value); }
+        }
+
+        public int TasksOverDue
+        {
+            get { return this.tasksOverDue; }
+            set { this.RaiseAndSetIfChanged(ref this.tasksOverDue, value); }
+        }
 
         public ShellViewModel()
         {
@@ -135,7 +184,8 @@ namespace Seemon.Todo.ViewModels
             this.OptionsViewModel = new OptionsViewModel();
             this.AboutViewModel = new AboutViewModel();
             this.HelpViewModel = new HelpViewModel();
-
+            this.Notification = new NotificationViewModel();
+            
             this.FileNewCommand = ReactiveCommand.Create();
             this.FileNewCommand.Subscribe(x => this.OnFileNew());
 
@@ -204,7 +254,10 @@ namespace Seemon.Todo.ViewModels
 
             this.TaskRemoveDueDateCommand = ReactiveCommand.Create(this.WhenAny(x => x.window.lbTasks.SelectedItems.Count, y => y.window.txtTask.IsFocused, (x, y) => x.Value > 0 && !y.Value));
             this.TaskRemoveDueDateCommand.Subscribe(x => this.OnRemoveDueDate());
-            
+
+            this.TaskSummaryCommand = ReactiveCommand.Create();
+            this.TaskSummaryCommand.Subscribe(x => this.OnTaskSummary());
+
             this.SortCommand = ReactiveCommand.Create();
             this.SortCommand.Subscribe(x => this.OnSort(x));
 
@@ -222,7 +275,10 @@ namespace Seemon.Todo.ViewModels
 
             this.HelpViewErrorLogCommand = ReactiveCommand.Create();
             this.HelpViewErrorLogCommand.Subscribe(x => this.OnFeatureNotImplemented("View error log."));
-            
+
+            this.HelpCheckForUpdatesCommand = ReactiveCommand.Create();
+            this.HelpCheckForUpdatesCommand.Subscribe(x => this.OnCheckForUpdates());
+
             this.HelpViewHelpCommand = ReactiveCommand.Create();
             this.HelpViewHelpCommand.Subscribe(x => this.HelpViewModel.Show());
 
@@ -250,6 +306,8 @@ namespace Seemon.Todo.ViewModels
 
             this.selectedTasks = new List<Task>();
             this.SortType = UserSettings.SelectedSortType;
+
+            this.Log().Info("Completed initalization");
         }
 
         protected override void OnViewReady(object view)
@@ -257,14 +315,41 @@ namespace Seemon.Todo.ViewModels
             base.OnViewReady(view);
             window = (ShellView)view;
 
+            this.Log().Info("Loading last opened todo.txt file.");
             if (!string.IsNullOrEmpty(this.UserSettings.LastLoadedFilePath) && File.Exists(this.UserSettings.LastLoadedFilePath))
                 LoadTasks(this.UserSettings.LastLoadedFilePath);
             else
                 this.UserSettings.LastLoadedFilePath = string.Empty;
+
+            this.Log().Info("Initializing application updater");
+            this.appUpdater = new AppUpdater(Locator.Current.GetService<IUpdateManager>());
+            this.updateStatusSubscription = this.appUpdater.Status.Subscribe(this.OnUpdateStatusChanged);
+
+            Locator.CurrentMutable.Register(() => this.appUpdater, typeof(AppUpdater));
+        }
+
+        private void OnUpdateStatusChanged(AppUpdater.UpdateStatus currentStatus)
+        {
+            switch(currentStatus)
+            {
+                case AppUpdater.UpdateStatus.NoUpdateFound:
+                    if(manualUpdateCheck)
+                    {
+                        this.Notification.ShowInformation("There are no updates currently available.");
+                    }
+                    break;
+                case AppUpdater.UpdateStatus.UpdateComplete:
+                    this.Notification.ShowInformation("The latest version of TODO.TXT has been installed. Please restart the application to see the new changes", "Dismiss", 0, () =>
+                    {
+                        this.appUpdater.RestartApplication();
+                    }, "Restart Now");
+                    break;
+            }
         }
 
         public void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            this.Log().Info("Closing all windows.");
             this.HelpViewModel.TryClose();
             this.AboutViewModel.TryClose();
             this.OptionsViewModel.TryClose();
@@ -297,13 +382,11 @@ namespace Seemon.Todo.ViewModels
             {
                 case Key.Escape:
                     updating = null;
-                    if (window.txtTask.Text == string.Empty)
-                    {
-                        GetSelectedTasks();
-                        SetSelectedTasks();
-                    }
-                    else
+                    if (window.txtTask.Text != string.Empty)
                         window.txtTask.Text = string.Empty;
+
+                    GetSelectedTasks();
+                    SetSelectedTasks();                       
                     break;
             }
         }
@@ -515,6 +598,12 @@ namespace Seemon.Todo.ViewModels
             ModifySelectedTasks(RemoveTaskDueDate, null);
         }
 
+        private void OnTaskSummary()
+        {
+            SummaryViewModel summaryViewModel = new SummaryViewModel(this.TaskManager.Tasks, sortedTasks.ToList());
+            windowManager.ShowDialog(summaryViewModel);
+        }
+
         private void OnDefineFilters()
         {
             ShowFilterView();
@@ -536,6 +625,16 @@ namespace Seemon.Todo.ViewModels
         {
             var preset = x != null ? int.Parse(x.ToString()) : -1;
             ApplyFilterPreset(preset);
+        }
+
+        private bool manualUpdateCheck = false;
+        private async void OnCheckForUpdates()
+        {
+            this.Log().Info("Starting manual application update check.");
+            this.manualUpdateCheck = true;
+            await Locator.Current.GetService<AppUpdater>().UpdateAppAsync(true);
+            this.manualUpdateCheck = false;
+            this.Log().Info("Completed manual application update check.");
         }
 
         private void UpdateWindowTitle()
@@ -627,7 +726,6 @@ namespace Seemon.Todo.ViewModels
             SetSelectedTasks();
         }
 
-
         private void ShowHideCalendar()
         {
             string calendarString = string.Empty;
@@ -664,11 +762,11 @@ namespace Seemon.Todo.ViewModels
                 fileChangeObserver = null;
             }
 
-            this.Log().Debug("Enabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
+            this.Log().Debug("DEBUG: Enabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
             fileChangeObserver = new FileChangeObserver();
             fileChangeObserver.OnFileChanged += () => window.Dispatcher.BeginInvoke(new System.Action(ReloadFile));
             fileChangeObserver.ObserveFile(UserSettings.LastLoadedFilePath);
-            this.Log().Debug("File change observer enabled");
+            this.Log().Debug("DEBUG: File change observer enabled");
         }
 
         private void DisableFileChangeObserver()
@@ -676,10 +774,10 @@ namespace Seemon.Todo.ViewModels
             if (fileChangeObserver == null)
                 return;
 
-            this.Log().Debug("Diabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
+            this.Log().Debug("DEBUG: Diabling the file change observer for {0}", UserSettings.LastLoadedFilePath);
             fileChangeObserver.Dispose();
             fileChangeObserver = null;
-            this.Log().Debug("File change observer disabled");
+            this.Log().Debug("DEBUG: File change observer disabled");
         }
 
         private void ToggleFileChangeObserver()
@@ -796,7 +894,7 @@ namespace Seemon.Todo.ViewModels
 
         public void LoadTasks(string filePath)
         {
-            this.Log().Debug("Loading tasks from file {0}", filePath);
+            this.Log().Info("Loading tasks from file {0}", filePath);
             try
             {
                 this.TaskManager = new TaskList(filePath, UserSettings.PreserveWhiteSpaceAndBlankLines);
@@ -815,7 +913,7 @@ namespace Seemon.Todo.ViewModels
 
         private void ReloadFile()
         {
-            this.Log().Debug("Reloading todo.txt file");
+            this.Log().Info("Reloading todo.txt file");
             try
             {
                 TaskManager.ReloadTasks();
@@ -838,7 +936,7 @@ namespace Seemon.Todo.ViewModels
 
             try
             {
-                var sortedTasks = FilterTasks(TaskManager.Tasks);
+                sortedTasks = FilterTasks(TaskManager.Tasks);
                 sortedTasks = SortTasks(sortedTasks);
 
                 switch (SortType)
@@ -877,14 +975,51 @@ namespace Seemon.Todo.ViewModels
                 else
                     collectionView.GroupDescriptions.Clear();
 
+                var filteredTasks = sortedTasks.ToList();
+
                 window.lbTasks.ItemsSource = sortedTasks;
                 window.lbTasks.UpdateLayout();
+
+                UpdateSummary(filteredTasks);
             }
             catch (Exception ex)
             {
                 //this.Log().ErrorException("Error while sorting tasks", ex);
                 ex.Handle("Error while sorting tasks", (IEnableLogger)this, this.window);
             }
+        }
+
+        protected void UpdateSummary(List<Task> selectedTaskList)
+        {
+            this.Log().Info("Updating task summary");
+            this.TotalTasks = TaskManager.Tasks.Count;
+            this.FilteredTasks = selectedTaskList.Count;
+
+            int incompleteTask = 0, dueTodayTask = 0, overDueTask = 0;
+
+            foreach(Task t in selectedTaskList)
+            {
+                if(!t.Completed)
+                {
+                    incompleteTask++;
+
+                    if(!string.IsNullOrEmpty(t.DueDate))
+                    {
+                        DateTime dueDate;
+                        if(DateTime.TryParseExact(t.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dueDate))
+                        {
+                            if (dueDate.Date == DateTime.Today.Date)
+                                dueTodayTask++;
+                            else if (dueDate.Date < DateTime.Today)
+                                overDueTask++;
+                        }
+                    }
+                }
+            }
+
+            this.IncompleteTasks = incompleteTask;
+            this.TasksOverDue = overDueTask;
+            this.TasksDueToday = dueTodayTask;
         }
 
         private bool IsTaskSelected()
@@ -958,7 +1093,7 @@ namespace Seemon.Todo.ViewModels
 
         public IEnumerable<Task> SortTasks(IEnumerable<Task> tasks)
         {
-            this.Log().Debug("Sorting {0} tasks by {1}", tasks.Count().ToString(), SortType.ToString());
+            this.Log().Debug("DEBUG: Sorting {0} tasks by {1}", tasks.Count().ToString(), SortType.ToString());
 
             switch(SortType)
             {

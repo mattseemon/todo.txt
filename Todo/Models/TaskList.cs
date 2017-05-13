@@ -34,7 +34,7 @@ namespace Seemon.Todo.Models
             {
                 var output = task.ToString();
 
-                this.Log().Debug("Adding task '{0}'", output);
+                this.Log().Debug("DEBUG: Adding task '{0}'", output);
 
                 var text = File.ReadAllText(_filePath);
                 if (text.Length > 0 && !text.EndsWith(_preferredLineEnding))
@@ -44,7 +44,7 @@ namespace Seemon.Todo.Models
 
                 Tasks.Add(task);
 
-                this.Log().Debug("Task '{0}' added", output);
+                this.Log().Debug("DEBUG: Task '{0}' added", output);
             }
             catch(Exception ex)
             {
@@ -62,12 +62,12 @@ namespace Seemon.Todo.Models
         {
             try
             {
-                this.Log().Debug("Deleting task '{0}'", task.ToString());
+                this.Log().Debug("DEBIG: Deleting task '{0}'", task.ToString());
 
                 if (Tasks.Remove(Tasks.First(t => t.Raw == task.Raw)))
                     WriteAllTasksToFile();
 
-                this.Log().Debug("Task '{0}' deleted", task.ToString());
+                this.Log().Debug("DEBUG: Task '{0}' deleted", task.ToString());
             }
             catch(IOException ex)
             {
@@ -88,7 +88,7 @@ namespace Seemon.Todo.Models
 
         public void UpdateTask(Task currentTask, Task newTask, bool writeTasks = true)
         {
-            this.Log().Debug("Updating task '{0}' to '{1}'.", currentTask.ToString(), newTask.ToString());
+            this.Log().Debug("DEBUG: Updating task '{0}' to '{1}'.", currentTask.ToString(), newTask.ToString());
 
             try
             {
@@ -99,7 +99,7 @@ namespace Seemon.Todo.Models
 
                 Tasks[currentIndex] = newTask;
 
-                this.Log().Debug("Task '{0}' updated", currentTask.ToString());
+                this.Log().Debug("DEBUG: Task '{0}' updated", currentTask.ToString());
 
                 if (writeTasks)
                     WriteAllTasksToFile();

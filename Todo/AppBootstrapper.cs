@@ -16,26 +16,62 @@ using System.Windows.Threading;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Squirrel;
+using System.Threading.Tasks;
 
 namespace Seemon.Todo
 {
     public class AppBootstrapper : BootstrapperBase, IEnableLogger
     {
         private UserSettings settings = null;
+        private IUpdateManager updateManager = null;
+        public bool ShowWelcomeWindow;
+
         private TaskbarIcon notifyIcon = null;
 
         public static IBlobCache OldBlobCache = null;
+        
 
         public ReactiveCommand<object> EnableDebugLoggingCommand { get; private set; }
 
         static AppBootstrapper()
         {
-            BlobCache.ApplicationName = "todo.txt";
+            BlobCache.ApplicationName = "todotxt";
         }
 
         public AppBootstrapper()
         {
+            InitializeUpdater();
             Initialize();
+        }
+
+        public async void InitializeUpdater()
+        {
+            try
+            {
+#if DEBUG
+                updateManager = new UpdateManager(AppInfo.UpdateLocation, "todo.txt");
+#else
+                updateManager = await UpdateManager.GitHubUpdateManager(AppInfo.UpdateLocation);
+#endif
+                SquirrelAwareApp.HandleEvents(
+                    onInitialInstall: v =>
+                    {
+                        this.Log().Info("TODO.TXT - On Initial Install Run");
+                        updateManager.CreateShortcutForThisExe();
+                    },
+                    onAppUpdate: v =>
+                    {
+                        updateManager.CreateShortcutForThisExe();
+                        updateManager.CreateShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup, true, string.Empty, null);
+                    },
+                    onAppUninstall: v => updateManager.RemoveShortcutForThisExe(),
+                    onFirstRun: () => ShowWelcomeWindow = true);
+            }
+            catch(Exception ex)
+            {
+                this.Log().ErrorException("Updated Failed", ex);
+            }
         }
 
         protected override void Configure()
@@ -70,15 +106,17 @@ namespace Seemon.Todo
 #endif
 
             this.settings = new UserSettings(BlobCache.UserAccount);
+            Locator.CurrentMutable.RegisterConstant(this.settings, typeof(UserSettings));
+            Locator.CurrentMutable.RegisterLazySingleton(() => new WindowManager(), typeof(IWindowManager));
 
             this.EnableDebugLoggingCommand = ReactiveCommand.Create();
             this.EnableDebugLoggingCommand.Subscribe(x => this.EnableDebugLogging());
 
             this.settings.WhenAnyValue(x => x.EnableDebugLogging).InvokeCommand(this, x => x.EnableDebugLoggingCommand);
 
-            Locator.CurrentMutable.RegisterConstant(this.settings, typeof(UserSettings));
-            Locator.CurrentMutable.RegisterLazySingleton(() => new WindowManager(), typeof(IWindowManager));
+            
             Locator.CurrentMutable.RegisterLazySingleton(() => new ShellViewModel(), typeof(ShellViewModel));
+            Locator.CurrentMutable.Register(() => this.updateManager, typeof(IUpdateManager));
 
             this.notifyIcon = (TaskbarIcon)App.Current.FindResource("NotifyIcon");
             Locator.CurrentMutable.Register(() => this.notifyIcon, typeof(TaskbarIcon));
@@ -111,6 +149,9 @@ namespace Seemon.Todo
         protected override void OnExit(object sender, EventArgs e)
         {
             this.Log().Info("Starting todo.txt shutdown");
+
+            if (updateManager != null)
+                this.updateManager.Dispose();
 
             this.Log().Info("Shutting down BlobCache");
             BlobCache.Shutdown().Wait();

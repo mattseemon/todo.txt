@@ -13,7 +13,7 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         
         mc:Ignorable="d"
-        Title="TODO.TXT" Height="480" Width="640" ResizeMode="CanResizeWithGrip" MinHeight="480" MinWidth="640" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded">
+        Title="TODO.TXT" Height="500" Width="700" ResizeMode="CanResizeWithGrip" MinHeight="500" MinWidth="700" cal:Message.Attach="[Event Closing] = [Action OnClosing($source, $eventArgs)]" StateChanged="OnStateChanged" Closing="OnWindowClosing" Loaded="OnWindowLoaded" SizeChanged="OnWindowSizeChanged" LocationChanged="OnWindowLocationChanged">
     <Window.Resources>
         <local:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter" />
         <local:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
@@ -93,8 +93,9 @@
         <KeyBinding Command="{Binding Path=FilePrintCommand}" Key="P" Modifiers="Ctrl" />
         <KeyBinding Command="{Binding Path=FilePrintPreviewCommand}" Key="P" Modifiers="Shift+Ctrl" />
         <KeyBinding Command="{Binding Path=FileReloadFileCommand}" Key="F5" />
-        <KeyBinding Command="{Binding Path=FileExitCommand}" />
+        <KeyBinding Command="{Binding Path=FileExitCommand}" Key="Q" Modifiers="Ctrl" />
         <KeyBinding Command="{Binding Path=TaskDuplicateCommand}" Key="V" Modifiers="Ctrl+Shift" />
+        <KeyBinding Command="{Binding Path=TaskSummaryCommand}" Key="I" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding Path=ToolsOptionsCommand}" Key="F10" />
         <KeyBinding Command="{Binding Path=HelpAboutCommand}" Key="F12" />
         <KeyBinding Command="{Binding Path=HelpViewHelpCommand}" Key="OemQuestion" Modifiers="Shift" />
@@ -140,7 +141,7 @@
                 <MenuItem Header="_Archive Completed Tasks" InputGestureText="A" Command="{Binding Path=FileArchiveCompletedTasksCommand}" />
                 <MenuItem Header="_Reload File" InputGestureText="F5" Command="{Binding Path=FileReloadFileCommand}" />
                 <Separator />
-                <MenuItem Header="E_xit" Command="{Binding Path=FileExitCommand}" />
+                <MenuItem Header="E_xit" InputGestureText="Ctrl+Q" Command="{Binding Path=FileExitCommand}" />
             </MenuItem>
             <MenuItem Header="_EDIT" Style="{StaticResource TitleMenu}">
                 <MenuItem Header="Cu_t" InputGestureText="Ctrl+X" Command="Cut" />
@@ -166,6 +167,8 @@
                 <MenuItem Header="Increase Due Date by 1 Day" InputGestureText="Ctrl+Shift+Up" Command="{Binding Path=TaskIncreaseDueDateCommand}" />
                 <MenuItem Header="Decrease Due Date by 1 Day" InputGestureText="Ctrl+Shift+Down" Command="{Binding Path=TaskDecreaseDueDateCommand}" />
                 <MenuItem Header="Remove Due Date" InputGestureText="Ctrl+Shift+Left/Right" Command="{Binding Path=TaskRemoveDueDateCommand}" />
+                <Separator />
+                <MenuItem Header="Task Summary" InputGestureText="Ctrl+Shift+I" Command="{Binding Path=TaskSummaryCommand}" />
             </MenuItem>
             <MenuItem Header="_SORT" Style="{StaticResource TitleMenu}">
                 <MenuItem Header="_Order in File" IsCheckable="True" InputGestureText="Ctrl+0" IsChecked="{Binding Path=SortType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=None}" Command="{Binding Path=SortCommand}" />
@@ -200,10 +203,14 @@
                 <MenuItem Header="_View Help" InputGestureText="?" Command="{Binding Path=HelpViewHelpCommand}" />
                 <MenuItem Header="_View Error Log" Command="{Binding Path=HelpViewErrorLogCommand}" />
                 <Separator />
+                <MenuItem Header="_Check for Updates" Command="{Binding Path=HelpCheckForUpdatesCommand}" />
+                <Separator />
                 <MenuItem Header="_About" InputGestureText="F12" Command="{Binding Path=HelpAboutCommand}"/>
             </MenuItem>
         </Menu>
+
         <Separator Grid.Row="1" Grid.ColumnSpan="2" Margin="0" />
+        <views:NotificationView DataContext="{Binding Path=Notification}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BooleanToVisibile}}" MaxWidth="700" Panel.ZIndex="1" Grid.Row="2" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalAlignment="Top" />
         <ctrl:IntellisenseTextBox Grid.Row="2" Grid.ColumnSpan="2" Margin="3" Height="23" VerticalContentAlignment="Center" x:Name="txtTask" 
                                   CaseSensitive="{Binding Path=UserSettings.ProjectAndContextIntellisenseAreCaseSensitive}" Cursor="IBeam"
                                   TaskList="{Binding Path=TaskManager}"
@@ -314,23 +321,29 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
-            <StatusBarItem>
+            <StatusBarItem Grid.Column="0">
                 <TextBlock Text="{Binding StatusInformation}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Calendar" util:ToolTipExtended.ToolTipContent="Shows the dates and days for the next 7 days." />
             </StatusBarItem>
             <StatusBarItem Grid.Column="1" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
-                <TextBlock Text="PORTABLE" FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Portable Mode" util:ToolTipExtended.ToolTipContent="Application is currently in portable mode."  />
+                <TextBlock FontWeight="Bold" Margin="0 0 5 0" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Tasks Summary" util:ToolTipExtended.ToolTipContent="Shows number of filtered against total, incomplete, due today and over due tasks in todo.txt" >
+                    TASKS: <Run Text="{Binding Path=FilteredTasks}" /> of <Run Text="{Binding Path=TotalTasks}" /> INCOMPLETE : <Run Foreground="Blue" Text="{Binding Path=IncompleteTasks}" /> DUE TODAY : <Run Foreground="Green" Text="{Binding Path=TasksDueToday}" /> OVERDUE : <Run Foreground="Red" Text="{Binding Path=TasksOverDue}" />
+                </TextBlock>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
-                <TextBlock Text="{Binding Path=SortType, Converter={StaticResource StringToUpperConverter}}" Margin="0 0 5 0" FontWeight="Bold" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Active Sort" util:ToolTipExtended.ToolTipContent="Displays the currently active sort" />
+                <TextBlock Text="PORTABLE" FontWeight="Bold" Margin="0 0 5 0" Visibility="{Binding Path=IsPortable, Converter={StaticResource BooleanToVisibile}}" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Portable Mode" util:ToolTipExtended.ToolTipContent="Application is currently in portable mode."  />
             </StatusBarItem>
             <StatusBarItem Grid.Column="3" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
+                <TextBlock Text="{Binding Path=SortType, Converter={StaticResource StringToUpperConverter}}" Margin="0 0 5 0" FontWeight="Bold" ToolTip="{StaticResource TextBlockToolTip}" util:ToolTipExtended.ToolTipHeader="Active Sort" util:ToolTipExtended.ToolTipContent="Displays the currently active sort" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4" Visibility="{Binding Path=ShowCalendar, Converter={StaticResource BooleanToCollapsed}}">
                 <TextBlock Text="FLT" Margin="0 0 5 0" FontWeight="Bold" Visibility="{Binding Path=CurrentFilter, Converter={StaticResource StringNullOrEmptyToVisibilityConverter}}" util:ToolTipExtended.ToolTipHeader="Filter Active" util:ToolTipExtended.ToolTipContent="Notifies if there is an active filter on" ToolTip="{StaticResource TextBlockToolTip}"/>
             </StatusBarItem>
-            <StatusBarItem Grid.Column="4">
+            <StatusBarItem Grid.Column="5">
                 <TextBlock Text="{Binding Source={x:Static System:DateTime.Now}, StringFormat='MM/dd/yyyy'}" Margin="0 0 10 0" FontWeight="Bold" util:ToolTipExtended.ToolTipHeader="Today" util:ToolTipExtended.ToolTipContent="Displays the current date" ToolTip="{StaticResource TextBlockToolTip}" />
             </StatusBarItem>
         </StatusBar>

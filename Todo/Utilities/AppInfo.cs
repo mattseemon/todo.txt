@@ -12,6 +12,9 @@ namespace Seemon.Todo.Utilities
         public static string PortableStoragePath = string.Empty;
         public static string DeleteMarker = string.Empty;
 
+        public static string UpdateLocation = "https://github.com/mattseemon/todo.txt-WPF";
+        public static string PortableLocation = "http://projects.mattseemon.in/todo.txt/releases/TodotxtPortable.7z";
+
         public static string Title;
         public static string Product;
         public static string Version;
@@ -26,7 +29,11 @@ namespace Seemon.Todo.Utilities
             ApplicationRootPath = Path.GetDirectoryName(currentAssembly.Location);
             LogFilePath = Path.Combine(ApplicationRootPath, "Log.txt");
 
-#if PORTABLE
+#if DEBUG
+            UpdateLocation = @"D:\Development\GitHub\todo.txt-WPF\Releases\";
+#endif
+
+#if (DEBUG || PORTABLE)
             PortableStoragePath = Path.Combine(ApplicationRootPath, "blobs.db");
 #endif
 
