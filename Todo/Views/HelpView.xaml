@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="HelpView" MinHeight="480" MinWidth="640" ShowInTaskbar="False">
     <Grid>
-        <FlowDocumentReader Margin="6">
+        <FlowDocumentReader Margin="6" Zoom="150">
             <FlowDocument>
                 <Paragraph FontSize="18" FontWeight="Bold">Keyboard Shortcuts</Paragraph>
                 <List>

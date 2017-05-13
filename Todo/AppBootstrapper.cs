@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Squirrel;
+using System.Threading.Tasks;
 
 namespace Seemon.Todo
 {
@@ -40,23 +41,33 @@ namespace Seemon.Todo
 
         public AppBootstrapper()
         {
-            updateManager = new UpdateManager(AppInfo.UpdateLocation, "todotxt");
-
-            SquirrelAwareApp.HandleEvents(
-                onInitialInstall: v => 
-                {
-                    this.Log().Info("TODO.TXT - On Initial Install Run");
-                    updateManager.CreateShortcutForThisExe();
-                },
-                onAppUpdate: v =>
-                {
-                    updateManager.CreateShortcutForThisExe();
-                    updateManager.CreateShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup, true, string.Empty, null);
-                },
-                onAppUninstall: v => updateManager.RemoveShortcutForThisExe(),
-                onFirstRun: () => ShowWelcomeWindow = true);
-            
+            InitializeUpdater();
             Initialize();
+        }
+
+        public async void InitializeUpdater()
+        {
+            try
+            {
+                updateManager = await UpdateManager.GitHubUpdateManager(AppInfo.UpdateLocation);
+                SquirrelAwareApp.HandleEvents(
+                    onInitialInstall: v =>
+                    {
+                        this.Log().Info("TODO.TXT - On Initial Install Run");
+                        updateManager.CreateShortcutForThisExe();
+                    },
+                    onAppUpdate: v =>
+                    {
+                        updateManager.CreateShortcutForThisExe();
+                        updateManager.CreateShortcutsForExecutable("todotxt.exe", ShortcutLocation.Startup, true, string.Empty, null);
+                    },
+                    onAppUninstall: v => updateManager.RemoveShortcutForThisExe(),
+                    onFirstRun: () => ShowWelcomeWindow = true);
+            }
+            catch(Exception ex)
+            {
+                this.Log().ErrorException("Updated Failed", ex);
+            }
         }
 
         protected override void Configure()
