@@ -31,8 +31,11 @@
 
 		using(var f = File.OpenText(Host.ResolvePath("VersionSuffix.txt")))
 		{
-			suffix = f.ReadLine();
+			suffix = f.ReadLine().Trim();
 		}
+
+		if(!string.IsNullOrEmpty(suffix))
+			suffix = "-" + suffix;
 	}
 	catch
 	{
@@ -55,4 +58,4 @@ using System.Reflection;
 
 [assembly: AssemblyVersion("<#= major #>.<#= minor #>.<#= build #>")]
 [assembly: AssemblyFileVersion("<#= major #>.<#= minor #>.<#= build #>.<#= revision #>")]
-[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>.<#= build #>-<#= suffix #>")]
+[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>.<#= build #><#= suffix #>")]
