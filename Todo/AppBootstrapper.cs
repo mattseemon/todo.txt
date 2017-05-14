@@ -45,14 +45,14 @@ namespace Seemon.Todo
             Initialize();
         }
 
-        public async void InitializeUpdater()
+        public void InitializeUpdater()
         {
             try
             {
 #if DEBUG
                 updateManager = new UpdateManager(AppInfo.UpdateLocation, "todo.txt");
 #else
-                updateManager = await UpdateManager.GitHubUpdateManager(AppInfo.UpdateLocation);
+                updateManager = UpdateManager.GitHubUpdateManager(AppInfo.UpdateLocation, "todo.txt").Result;
 #endif
                 SquirrelAwareApp.HandleEvents(
                     onInitialInstall: v =>

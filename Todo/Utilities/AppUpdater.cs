@@ -49,6 +49,9 @@ namespace Seemon.Todo.Utilities
 
         public AppUpdater(IUpdateManager updateManager, Action<int> progress = null)
         {
+            if (updateManager == null)
+                return;
+
             this.Log().Info("Initialize Application Updater.");
 
             this.currentStatus.OnNext(UpdateStatus.Initializing);
